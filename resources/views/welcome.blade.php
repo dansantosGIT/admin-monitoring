@@ -154,10 +154,10 @@
         <div class="welcome-container">
             <div class="welcome-logo">🏢</div>
             <h1 class="welcome-h1">WELCOME!!!</h1>
-            <div class="welcome-title">SAN JUAN</div>
+            <div class="welcome-title">SAN JUAN CDRMMD</div>
             <p class="welcome-p">Admin Monitoring System</p>
             <p class="welcome-p">Personnel incident tracking and monitoring dashboard for San Juan administration.</p>
-
+            
             <div class="welcome-nav">
                 <a href="/reports" class="welcome-btn welcome-btn-primary">View Reports</a>
                 <a href="/dashboard" class="welcome-btn welcome-btn-secondary">Dashboard</a>
