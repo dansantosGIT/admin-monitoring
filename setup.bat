@@ -17,7 +17,19 @@ if not exist "composer.json" (
 )
 
 REM Define paths
-set PHP_PATH=c:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe
+for /f "delims=" %%I in ('dir /b /ad /o-n "c:\laragon\bin\php"') do (
+    set PHP_ROOT=c:\laragon\bin\php\%%I
+    goto :php_found
+)
+
+:php_found
+if not defined PHP_ROOT (
+    echo Error: No Laragon PHP installation found under c:\laragon\bin\php
+    pause
+    exit /b 1
+)
+
+set PHP_PATH=%PHP_ROOT%\php.exe
 set COMPOSER_PATH=c:\laragon\bin\composer\composer.phar
 set NPM_PATH=c:\laragon\bin\nodejs\node-v22\npm.cmd
 
