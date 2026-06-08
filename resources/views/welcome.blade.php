@@ -153,7 +153,7 @@
         </style>
         <div class="welcome-container">
             <div class="welcome-logo">🏢</div>
-            <h1 class="welcome-h1">WELCOME</h1>
+            <h1 class="welcome-h1">WELCOME!!!</h1>
             <div class="welcome-title">SAN JUAN</div>
             <p class="welcome-p">Admin Monitoring System</p>
             <p class="welcome-p">Personnel incident tracking and monitoring dashboard for San Juan administration.</p>
