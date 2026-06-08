@@ -1,14 +1,28 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ReportController;
 
 // Welcome Landing Page
 Route::get('/', function () {
     return view('welcome');
 });
 
-// Reports Dashboard
-Route::get('/reports', function () {
+// Monitoring Dashboard
+Route::get('/dashboard', [ReportController::class, 'dashboard'])->name('dashboard');
+
+// System Health Check
+Route::get('/health', [ReportController::class, 'systemHealth'])->name('health');
+
+// Reports Resource Routes
+Route::resource('reports', ReportController::class);
+
+// Report Export Routes
+Route::get('/reports/{report}/export-excel', [ReportController::class, 'exportExcel'])->name('reports.export-excel');
+Route::get('/reports/{report}/export-pdf', [ReportController::class, 'exportPDF'])->name('reports.export-pdf');
+
+// Legacy Reports View (for backward compatibility)
+Route::get('/admin/reports', function () {
     $reports = [
         [
             'name' => 'Maria Santos',
@@ -32,3 +46,4 @@ Route::get('/reports', function () {
 
     return view('reports', compact('reports'));
 });
+
