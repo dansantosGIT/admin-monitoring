@@ -163,7 +163,7 @@
                 </div>
                 <div class="mini-calendar">
                     <div class="cal-days-header">
-                        @foreach(['Su','Mo','Tu','We','Th','Fr','Sa'] as $day)
+                        @foreach(['Sun','Mon','Tue','Wed','Thu','Fri','Sat'] as $day)
                             <span>{{ $day }}</span>
                         @endforeach
                     </div>
