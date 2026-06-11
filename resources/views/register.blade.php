@@ -76,6 +76,16 @@
         <p class="muted small">Already have an account? <a href="{{ route('login') }}">Login</a></p>
       </form>
     </section>
+  
+    @if(session('registered'))
+      <div id="registered-modal" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.4)">
+        <div style="background:#fff;padding:24px;border-radius:12px;max-width:480px;width:90%;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,0.12)">
+          <h3 style="margin-top:0">Registration received</h3>
+          <p style="color:var(--muted)">Thank you — your account request has been submitted. Please wait for administrator approval. You will receive an email once your account is activated.</p>
+          <button onclick="document.getElementById('registered-modal').style.display='none'" class="btn" style="margin-top:12px;background:#111;color:#fff;padding:10px 16px;border-radius:8px">Close</button>
+        </div>
+      </div>
+    @endif
   </main>
 </body>
 </html>

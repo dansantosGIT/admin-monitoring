@@ -15,6 +15,9 @@
         <a href="{{ route('employees.index') ?? '#' }}" class="{{ request()->is('employees*') ? 'active' : '' }}">Employees</a>
         <a href="{{ route('attendance.index') ?? '#' }}" class="{{ request()->is('attendance*') ? 'active' : '' }}">Attendance</a>
         <a href="{{ route('incidents.index') ?? '#' }}" class="{{ request()->is('incidents*') ? 'active' : '' }}">Incident Reports</a>
+        @if(auth()->check() && (auth()->user()->role ?? '') === 'super-admin')
+            <a href="{{ route('accounts.index') }}" class="{{ request()->is('accounts*') ? 'active' : '' }}">Accounts</a>
+        @endif
     </nav>
 
     <div style="margin-top:auto">

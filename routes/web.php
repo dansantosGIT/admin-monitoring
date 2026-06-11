@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AttendanceController;
@@ -45,13 +46,41 @@ Route::get('/login', function () {
     return view('login');
 })->name('login');
 
+// Registration POST handler
+Route::post('/register', function (Request $request) {
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email',
+        'password' => 'required|confirmed|min:6',
+    ]);
+
+    $user = new App\Models\User();
+    $user->name = $request->input('name');
+    $user->email = $request->input('email');
+    $user->password = Illuminate\Support\Facades\Hash::make($request->input('password'));
+    $user->status = 'pending';
+    $user->role = 'member';
+    $user->save();
+
+    return redirect()->route('register')->with('registered', true);
+});
+
 // Resource routes for sidebar pages
 Route::resource('employees', EmployeeController::class);
 Route::resource('attendance', AttendanceController::class);
 Route::resource('incidents', IncidentController::class);
 
+// Account approvals (super-admin)
+use App\Http\Controllers\AccountController;
+
+Route::middleware('auth')->group(function () {
+    Route::get('/accounts', [AccountController::class, 'index'])->name('accounts.index');
+    Route::post('/accounts/{user}/approve', [AccountController::class, 'approve'])->name('accounts.approve');
+    Route::post('/accounts/{user}/reject', [AccountController::class, 'reject'])->name('accounts.reject');
+    Route::delete('/accounts/{user}', [AccountController::class, 'destroy'])->name('accounts.destroy');
+});
+
 // Login POST handler
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
