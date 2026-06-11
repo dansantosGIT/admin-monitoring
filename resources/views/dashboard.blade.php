@@ -8,7 +8,7 @@
     {{-- TOP STATS ROW --}}
     <div class="stats-grid">
 
-        <div class="stat-card">
+        <div class="stat-card" id="totalEmployeesCard" role="button" tabindex="0">
             <div class="stat-card__icon stat-card__icon--employees">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
@@ -264,6 +264,84 @@
     </div>
     {{-- END MAIN CONTENT AREA --}}
 
+</div>
+
+<!-- Employees preview panel (client-side only, opens when Total Employees clicked) -->
+<div class="employees-preview-overlay" id="employeesPreview">
+    <div class="employees-panel" role="dialog" aria-modal="true" aria-labelledby="employeesTitle">
+        <div class="employees-panel__header">
+            <div>
+                <div id="employeesTitle" class="employees-panel__title">Registered Employees</div>
+                <div style="font-size:12px;color:#6b7280;margin-top:4px;">Browse and filter registered employees</div>
+            </div>
+            <div class="employees-panel__controls">
+                <input id="empSearch" type="search" placeholder="Search name…" style="padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;min-width:220px;">
+                <select id="empSort" style="padding:8px;border:1px solid #e5e7eb;border-radius:8px;">
+                    <option value="name_asc">Name A–Z</option>
+                    <option value="name_desc">Name Z–A</option>
+                    <option value="age_asc">Age ↑</option>
+                    <option value="age_desc">Age ↓</option>
+                    <option value="gender">Gender</option>
+                    <option value="position">Position</option>
+                    <option value="department">Department</option>
+                </select>
+                <select id="empDept" style="padding:8px;border:1px solid #e5e7eb;border-radius:8px;">
+                    <option value="all">All Departments</option>
+                    <option value="OPERATIONS">OPERATIONS</option>
+                    <option value="CEDOC">CEDOC</option>
+                    <option value="PLANNING">PLANNING</option>
+                    <option value="ADMIN">ADMIN</option>
+                </select>
+                <select id="empType" style="padding:8px;border:1px solid #e5e7eb;border-radius:8px;">
+                    <option value="all">All Types</option>
+                    <option value="permanent">Permanent</option>
+                    <option value="job_order">Job Order</option>
+                </select>
+                <button id="closeEmployees" class="btn" style="background:#fff;border:1px solid #e5e7eb;padding:8px;border-radius:8px;">Close</button>
+            </div>
+        </div>
+        <div class="employees-panel__body">
+            <div class="employees-preview-grid">
+                <aside class="employees-preview-card" id="employeePreviewCard">
+                    <div class="employee-preview-card__eyebrow">Selected profile</div>
+                    <div class="employee-preview-card__name" id="employeePreviewName">Choose an employee</div>
+                    <div class="employee-preview-card__sub">Monitoring preview • placeholder data until backend is connected</div>
+                    <div class="employee-preview-grid">
+                        <div class="employee-preview-item"><span>Employee No.</span><strong id="employeePreviewNo">—</strong></div>
+                        <div class="employee-preview-item"><span>Section</span><strong id="employeePreviewSection">—</strong></div>
+                        <div class="employee-preview-item"><span>Department</span><strong id="employeePreviewDept">—</strong></div>
+                        <div class="employee-preview-item"><span>Age</span><strong id="employeePreviewAge">—</strong></div>
+                        <div class="employee-preview-item"><span>Birthdate</span><strong id="employeePreviewBirth">—</strong></div>
+                        <div class="employee-preview-item"><span>Employment</span><strong id="employeePreviewType">—</strong></div>
+                    </div>
+                    <div class="employee-preview-item employee-preview-item--full"><span>Status</span><strong id="employeePreviewStatus">—</strong></div>
+                    <div class="employee-preview-note" id="employeePreviewNote">Select any registered employee row to preview their monitoring details.</div>
+                </aside>
+                <div style="overflow:auto;max-height:420px;">
+                    <table class="employees-table">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Age</th>
+                            <th>Gender</th>
+                            <th>Position / Section</th>
+                            <th>Department</th>
+                        </tr>
+                    </thead>
+                    <tbody id="employeesTbody">
+                        <!-- rendered by JS -->
+                    </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="employees-panel__footer">
+            <div id="employeesCount" style="color:#6b7280;font-size:13px;">0 employees</div>
+            <div class="pagination" id="employeesPagination">
+                <!-- page buttons -->
+            </div>
+        </div>
+    </div>
 </div>
 
 {{-- Inline styles scoped to this dashboard --}}
@@ -545,6 +623,45 @@
 
 /* ── Empty state ────────────────────────────────────── */
 .empty-state { padding: 1.5rem 0; text-align: center; color: #9ca3af; font-size: 0.82rem; }
+
+/* ── Employees preview (mini panel) ───────────────────── */
+.employees-preview-overlay {
+    position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(2,6,23,0.4); z-index: 1000;
+}
+.employees-preview-overlay.open { display: flex; }
+.employees-panel {
+    width: min(940px, 95%); max-height: 80vh; background: #fff; border-radius: 12px; box-shadow: 0 10px 30px rgba(2,6,23,0.2); overflow: hidden; display:flex; flex-direction:column;
+}
+.employees-panel__header { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px; border-bottom:1px solid #f3f4f6; }
+.employees-panel__title { font-weight:700; color:#111827; }
+.employees-panel__controls { display:flex; gap:8px; align-items:center; }
+.employees-panel__body { padding:12px; overflow:auto; }
+.employees-table { width:100%; border-collapse:collapse; }
+.employees-preview-grid { display:grid; grid-template-columns: 320px 1fr; gap:12px; align-items:start; }
+@media (max-width: 980px) { .employees-preview-grid { grid-template-columns: 1fr; } }
+.employees-preview-card { background:#fff7f7; border:1px solid #fde2e2; border-radius:12px; padding:12px; box-shadow: inset 0 0 0 1px rgba(192,57,43,0.04); }
+.employee-preview-card__eyebrow { font-size:11px; text-transform:uppercase; letter-spacing:.12em; color:#c0392b; font-weight:700; }
+.employee-preview-card__name { font-size:18px; font-weight:800; color:#111827; margin-top:4px; }
+.employee-preview-card__sub { font-size:12px; color:#6b7280; margin-top:4px; margin-bottom:10px; }
+.employee-preview-grid { display:grid; grid-template-columns: 1fr 1fr; gap:8px; }
+.employee-preview-item { background:#fff; border:1px solid #f3f4f6; border-radius:10px; padding:8px; }
+.employee-preview-item span { display:block; font-size:11px; color:#6b7280; text-transform:uppercase; letter-spacing:.08em; margin-bottom:3px; }
+.employee-preview-item strong { font-size:13px; color:#111827; }
+.employee-preview-item--full { margin-top:8px; }
+.employee-preview-note { margin-top:10px; font-size:12px; color:#6b7280; }
+.employees-table thead th { text-align:left; font-size:12px; color:#6b7280; padding:8px; border-bottom:1px solid #f3f4f6; }
+.employees-table tbody tr { transition: background .12s, filter .12s; cursor: pointer; }
+.employees-table tbody tr:hover { background:#fff7f7; filter:contrast(1.02); }
+.employee-row { display:flex; gap:12px; align-items:center; padding:10px 8px; }
+.employee-avatar-sm { width:36px; height:36px; border-radius:50%; background:#fce8e8; color:#c0392b; display:flex; align-items:center; justify-content:center; font-weight:700; }
+.employees-panel__footer { padding:12px; border-top:1px solid #f3f4f6; display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.pagination { display:flex; gap:6px; }
+.page-btn { padding:6px 9px; background:#fff; border:1px solid #e5e7eb; border-radius:8px; cursor:pointer; font-size:13px; }
+.page-btn.active { background:#c0392b; color:#fff; border-color:#c0392b; }
+.filter-pill { padding:6px 8px; border-radius:8px; border:1px solid #e5e7eb; background:#fff; cursor:pointer; font-size:13px; }
+.stat-card[role="button"] { cursor:pointer; }
+.stat-card[role="button"]:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(16,24,40,0.06); }
+
 </style>
 
 @push('scripts')
@@ -596,6 +713,186 @@ document.addEventListener('DOMContentLoaded', function () {
             },
         },
     });
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    // Employees data: try server-provided list, otherwise fallback to sample
+    const employeesFromServer = @json($employees ?? null);
+    const sampleEmployees = [
+        {id:1, employee_number:'EMP-2026-001', full_name:'Pedro, John F.', age:32, birthdate:'1993-05-30', gender:'Male', position:'Monitoring Officer', section:'Operations', department:'OPERATIONS', employment_type:'permanent', status:'Active', remarks:'Primary monitoring staff for daily field verification.'},
+        {id:2, employee_number:'EMP-2026-002', full_name:'Reyes, Maria A.', age:29, birthdate:'1996-11-12', gender:'Female', position:'Admin Coordinator', section:'Admin', department:'ADMIN', employment_type:'permanent', status:'Active', remarks:'Handles staff documentation and reporting support.'},
+        {id:3, employee_number:'EMP-2026-003', full_name:'Santos, Marvin D.', age:27, birthdate:'1998-02-18', gender:'Male', position:'Field Staff', section:'Operations', department:'OPERATIONS', employment_type:'job_order', status:'Active', remarks:'Field operations and attendance verification.'},
+        {id:4, employee_number:'EMP-2026-004', full_name:'Bergado, Novel P.', age:35, birthdate:'1990-07-09', gender:'Male', position:'Planning Analyst', section:'Planning', department:'PLANNING', employment_type:'job_order', status:'Active', remarks:'Planning and monitoring review support.'},
+        {id:5, employee_number:'EMP-2026-005', full_name:'Carlos, Kurt R.', age:31, birthdate:'1994-09-03', gender:'Male', position:'CEDOC Specialist', section:'CEDOC', department:'CEDOC', employment_type:'permanent', status:'Active', remarks:'Content and documentation oversight.'},
+        {id:6, employee_number:'EMP-2026-006', full_name:'Domingo, Liza M.', age:26, birthdate:'1999-04-16', gender:'Female', position:'Operations Assistant', section:'Operations', department:'OPERATIONS', employment_type:'job_order', status:'Active', remarks:'Daily monitoring and attendance support.'},
+        {id:7, employee_number:'EMP-2026-007', full_name:'Galvez, Mark L.', age:40, birthdate:'1985-12-22', gender:'Male', position:'Senior Supervisor', section:'Admin', department:'ADMIN', employment_type:'permanent', status:'Active', remarks:'Supervisory review and staff coordination.'},
+        {id:8, employee_number:'EMP-2026-008', full_name:'Tampi, Ansarie P.', age:23, birthdate:'2002-06-28', gender:'Female', position:'Documentation Assistant', section:'CEDOC', department:'CEDOC', employment_type:'job_order', status:'Active', remarks:'Documentation and records assistance.'},
+        {id:9, employee_number:'EMP-2026-009', full_name:'Reyes, Pedro J.', age:38, birthdate:'1987-08-04', gender:'Male', position:'Program Manager', section:'Admin', department:'ADMIN', employment_type:'permanent', status:'Active', remarks:'Program oversight and monitoring coordination.'},
+        {id:10, employee_number:'EMP-2026-010', full_name:'Acot, Mauro T.', age:30, birthdate:'1995-01-11', gender:'Male', position:'Field Technician', section:'Operations', department:'OPERATIONS', employment_type:'job_order', status:'Active', remarks:'Field monitoring and attendance support.'},
+    ];
+
+    function normalizeEmployee(e){
+        const fullName = e.full_name || [e.last_name, e.first_name, e.middle_name, e.suffix].filter(Boolean).join(', ').replace(/, ,/g, ', ');
+        const birthdate = e.birthdate || e.birth_date || e.date_of_birth || 'N/A';
+        const age = e.age ?? (birthdate !== 'N/A' ? new Date().getFullYear() - new Date(birthdate).getFullYear() : '—');
+        return {
+            ...e,
+            id: e.id ?? e.employee_id ?? Math.random(),
+            employee_number: e.employee_number || e.employee_no || 'EMP-PLACEHOLDER',
+            full_name: fullName || 'Unknown Employee',
+            age: age,
+            birthdate,
+            gender: e.gender || '—',
+            position: e.position || e.role || 'Staff',
+            section: e.section || '—',
+            department: e.department || '—',
+            employment_type: e.employment_type || e.employmentType || 'job_order',
+            status: e.status || 'Active',
+            remarks: e.remarks || 'Placeholder monitoring profile until the backend employee module is connected.'
+        };
+    }
+
+    const employees = (employeesFromServer && Array.isArray(employeesFromServer) ? employeesFromServer : sampleEmployees).map(normalizeEmployee);
+
+    // State
+    let state = { page:1, perPage:5, sort:'name_asc', dept:'all', type:'all', q:'' };
+
+    const tbody = document.getElementById('employeesTbody');
+    const paginationEl = document.getElementById('employeesPagination');
+    const countEl = document.getElementById('employeesCount');
+    const previewName = document.getElementById('employeePreviewName');
+    const previewNo = document.getElementById('employeePreviewNo');
+    const previewSection = document.getElementById('employeePreviewSection');
+    const previewDept = document.getElementById('employeePreviewDept');
+    const previewAge = document.getElementById('employeePreviewAge');
+    const previewBirth = document.getElementById('employeePreviewBirth');
+    const previewType = document.getElementById('employeePreviewType');
+    const previewStatus = document.getElementById('employeePreviewStatus');
+    const previewNote = document.getElementById('employeePreviewNote');
+
+    function applyFilters(list){
+        return list.filter(e=>{
+            if(state.dept !== 'all' && e.department !== state.dept) return false;
+            if(state.type !== 'all'){
+                if(state.type === 'permanent' && e.employment_type !== 'permanent') return false;
+                if(state.type === 'job_order' && e.employment_type !== 'job_order') return false;
+            }
+            if(state.q){
+                const q = state.q.toLowerCase();
+                return e.full_name.toLowerCase().includes(q) || (e.position||'').toLowerCase().includes(q);
+            }
+            return true;
+        });
+    }
+
+    function applySort(list){
+        const s = state.sort;
+        const copy = [...list];
+        switch(s){
+            case 'name_asc': return copy.sort((a,b)=>a.full_name.localeCompare(b.full_name));
+            case 'name_desc': return copy.sort((a,b)=>b.full_name.localeCompare(a.full_name));
+            case 'age_asc': return copy.sort((a,b)=>a.age - b.age);
+            case 'age_desc': return copy.sort((a,b)=>b.age - a.age);
+            case 'gender': return copy.sort((a,b)=>a.gender.localeCompare(b.gender));
+            case 'position': return copy.sort((a,b)=> (a.position||'').localeCompare(b.position||''));
+            case 'department': return copy.sort((a,b)=> (a.department||'').localeCompare(b.department||''));
+            default: return copy;
+        }
+    }
+
+    function updatePreview(employee){
+        if(!employee){
+            previewName.textContent = 'Choose an employee';
+            previewNo.textContent = '—';
+            previewSection.textContent = '—';
+            previewDept.textContent = '—';
+            previewAge.textContent = '—';
+            previewBirth.textContent = '—';
+            previewType.textContent = '—';
+            previewStatus.textContent = '—';
+            previewNote.textContent = 'Select any registered employee row to preview their monitoring details.';
+            return;
+        }
+        previewName.textContent = employee.full_name;
+        previewNo.textContent = employee.employee_number || '—';
+        previewSection.textContent = employee.section || '—';
+        previewDept.textContent = employee.department || '—';
+        previewAge.textContent = `${employee.age ?? '—'} yrs`;
+        previewBirth.textContent = employee.birthdate || '—';
+        previewType.textContent = employee.employment_type === 'permanent' ? 'Permanent' : 'Job Order';
+        previewStatus.textContent = employee.status || 'Active';
+        previewNote.textContent = employee.remarks || 'Monitoring profile placeholder until the backend employee module is connected.';
+    }
+
+    function render(){
+        const filtered = applyFilters(employees);
+        const sorted = applySort(filtered);
+        const total = sorted.length;
+        const totalPages = Math.max(1, Math.ceil(total / state.perPage));
+        if(state.page > totalPages) state.page = totalPages;
+
+        const start = (state.page -1) * state.perPage;
+        const pageItems = sorted.slice(start, start + state.perPage);
+
+        // render rows
+        tbody.innerHTML = '';
+        for(const e of pageItems){
+            const tr = document.createElement('tr');
+            tr.className = 'employee-selectable';
+            tr.dataset.employeeId = e.id;
+            tr.innerHTML = `
+                <td>
+                    <div class="employee-row">
+                        <div class="employee-avatar-sm">${(e.full_name.split(',')[0] || '').slice(0,2).toUpperCase()}</div>
+                        <div>
+                            <div style="font-weight:700;color:#111827;">${e.full_name}</div>
+                            <div style="font-size:12px;color:#6b7280;">${e.position} · ${e.employment_type === 'permanent' ? 'Permanent' : 'Job Order'}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>${e.age ?? '-'}</td>
+                <td>${e.gender ?? '-'}</td>
+                <td>${e.position} / ${e.section || '-'}</td>
+                <td>${e.department || '-'}</td>
+            `;
+            tr.addEventListener('click', ()=> updatePreview(e));
+            tbody.appendChild(tr);
+        }
+
+        if(pageItems.length){ updatePreview(pageItems[0]); }
+
+        // count
+        countEl.textContent = `${total} employee${total !== 1 ? 's' : ''}`;
+
+        // pagination
+        paginationEl.innerHTML = '';
+        const prev = document.createElement('button'); prev.className='page-btn'; prev.textContent='‹'; prev.disabled = state.page === 1; prev.onclick = ()=>{ if(state.page>1){ state.page--; render(); }}; paginationEl.appendChild(prev);
+        for(let p=1;p<=totalPages;p++){
+            const btn = document.createElement('button'); btn.className='page-btn'+(p===state.page?' active':''); btn.textContent=p; btn.onclick = ()=>{ state.page = p; render(); };
+            paginationEl.appendChild(btn);
+        }
+        const next = document.createElement('button'); next.className='page-btn'; next.textContent='›'; next.disabled = state.page === totalPages; next.onclick = ()=>{ if(state.page<totalPages){ state.page++; render(); }}; paginationEl.appendChild(next);
+    }
+
+    // controls
+    document.getElementById('empSort').addEventListener('change', (e)=>{ state.sort = e.target.value; render(); });
+    document.getElementById('empDept').addEventListener('change', (e)=>{ state.dept = e.target.value; state.page = 1; render(); });
+    document.getElementById('empType').addEventListener('change', (e)=>{ state.type = e.target.value; state.page = 1; render(); });
+    document.getElementById('empSearch').addEventListener('input', (e)=>{ state.q = e.target.value; state.page = 1; render(); });
+
+    // open/close
+    const overlay = document.getElementById('employeesPreview');
+    const openBtn = document.getElementById('totalEmployeesCard');
+    const closeBtn = document.getElementById('closeEmployees');
+    openBtn && openBtn.addEventListener('click', ()=>{ overlay.classList.add('open'); state.page = 1; render(); });
+    closeBtn && closeBtn.addEventListener('click', ()=>{ overlay.classList.remove('open'); });
+    overlay.addEventListener('click', (e)=>{ if(e.target === overlay) overlay.classList.remove('open'); });
+
+    // keyboard accessibility
+    openBtn && openBtn.addEventListener('keydown', (e)=>{ if(e.key === 'Enter' || e.key === ' ') { overlay.classList.add('open'); state.page = 1; render(); } });
+
+    // initial render not necessary until opened
 });
 </script>
 @endpush
