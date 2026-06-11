@@ -76,3 +76,11 @@ Route::get('/password/reset', function () {
     return '<h2>Password reset is not yet implemented. Please contact admin.</h2>';
 })->name('password.request');
 
+// Logout handler (simple)
+Route::post('/logout', function (Request $request) {
+    Auth::logout();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+    return redirect()->route('login');
+})->name('logout');
+
