@@ -47,3 +47,45 @@ Route::get('/admin/reports', function () {
     return view('reports', compact('reports'));
 });
 
+// Registration route (simple preview)
+Route::get('/register', function () {
+    return view('register');
+})->name('register');
+
+// Google OAuth stub for preview
+Route::get('/auth/google', function () {
+    // Placeholder: Implement OAuth redirect in real flow
+    return redirect()->route('register');
+})->name('auth.google');
+
+// Simple login route stub for preview
+Route::get('/login', function () {
+    return view('login');
+})->name('login');
+
+// Login POST handler
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+
+Route::post('/login', function (Request $request) {
+    $request->validate([
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
+
+    $credentials = $request->only('email', 'password');
+
+    if (Auth::attempt($credentials)) {
+        $request->session()->regenerate();
+        return redirect()->route('dashboard');
+    }
+
+    return back()->withErrors(['email' => 'The provided credentials do not match our records.'])->withInput();
+})->name('login.submit');
+
+// Password reset stub (preview)
+Route::get('/password/reset', function () {
+    return '<h2>Password reset is not yet implemented. Please contact admin.</h2>';
+})->name('password.request');
+
