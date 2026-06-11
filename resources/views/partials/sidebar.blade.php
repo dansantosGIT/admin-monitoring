@@ -21,8 +21,13 @@
         <div style="display:flex;align-items:center;gap:10px">
             <img src="{{ asset('images/CDRRMD-Logo.png') }}" alt="user" style="width:36px;height:36px;border-radius:50%">
             <div>
-                <div style="font-weight:700">Nawar Anwar</div>
-                <div style="font-size:12px;color:var(--muted)">LDRRM Officer II</div>
+                @if(auth()->check())
+                    <div style="font-weight:700">{{ auth()->user()->name }}</div>
+                    <div style="font-size:12px;color:var(--muted)">{{ auth()->user()->position ?? auth()->user()->role ?? 'Member' }}</div>
+                @else
+                    <div style="font-weight:700">Nawar Anwar</div>
+                    <div style="font-size:12px;color:var(--muted)">LDRRM Officer II</div>
+                @endif
             </div>
         </div>
     </div>
