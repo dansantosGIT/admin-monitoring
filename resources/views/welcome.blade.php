@@ -5,6 +5,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <title>{{ config('app.name', 'CDRRMD') }}</title>
+        <link rel="icon" type="image/png" href="{{ asset('images/CDRRMD-Logo.png') }}">
+        <link rel="apple-touch-icon" href="{{ asset('images/CDRRMD-Logo.png') }}">
+        <meta name="msapplication-TileImage" content="{{ asset('images/CDRRMD-Logo.png') }}">
 
         @fonts
 

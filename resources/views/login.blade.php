@@ -4,6 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Login — CDRRMD</title>
+  <link rel="icon" type="image/png" href="{{ asset('images/CDRRMD-Logo.png') }}">
+  <link rel="apple-touch-icon" href="{{ asset('images/CDRRMD-Logo.png') }}">
+  <meta name="msapplication-TileImage" content="{{ asset('images/CDRRMD-Logo.png') }}">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root{--red:#b60b0b;--bg:#f3f4f5;--card:#fff;--black:#000;--muted:#9aa0a6;--google:#e6e6e6;--error:#d9534f;--logo:140px;--card-w:420px}
@@ -35,7 +38,7 @@
   <div class="top-bar" aria-hidden="true"></div>
   <main class="page">
     <header class="page-head">
-      <img src="{{ asset('images/cdrrmd-logo.png') }}" alt="San Juan CDRRMD logo" class="logo">
+      <img src="{{ asset('images/CDRRMD-Logo.png') }}" alt="San Juan CDRRMD logo" class="logo">
       <h1 class="site-title">CDRRMD - Admin &amp; Training</h1>
     </header>
 

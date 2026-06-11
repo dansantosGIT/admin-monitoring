@@ -2,6 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\IncidentController;
 
 // Welcome Landing Page — redirect to login
 Route::get('/', function () {
@@ -21,30 +24,9 @@ Route::resource('reports', ReportController::class);
 Route::get('/reports/{report}/export-excel', [ReportController::class, 'exportExcel'])->name('reports.export-excel');
 Route::get('/reports/{report}/export-pdf', [ReportController::class, 'exportPDF'])->name('reports.export-pdf');
 
-// Legacy Reports View (for backward compatibility)
+// Legacy Reports URL — redirect to the new reports index
 Route::get('/admin/reports', function () {
-    $reports = [
-        [
-            'name' => 'Maria Santos',
-            'position' => 'HR Officer',
-            'incident_type' => 'Late attendance',
-            'date' => '2026-06-03',
-        ],
-        [
-            'name' => 'James Rivera',
-            'position' => 'Security Guard',
-            'incident_type' => 'Unauthorized access attempt',
-            'date' => '2026-06-05',
-        ],
-        [
-            'name' => 'Angela Cruz',
-            'position' => 'Office Assistant',
-            'incident_type' => 'Equipment misuse',
-            'date' => '2026-06-06',
-        ],
-    ];
-
-    return view('reports', compact('reports'));
+    return redirect()->route('reports.index');
 });
 
 // Registration route (simple preview)
@@ -62,6 +44,11 @@ Route::get('/auth/google', function () {
 Route::get('/login', function () {
     return view('login');
 })->name('login');
+
+// Resource routes for sidebar pages
+Route::resource('employees', EmployeeController::class);
+Route::resource('attendance', AttendanceController::class);
+Route::resource('incidents', IncidentController::class);
 
 // Login POST handler
 use Illuminate\Http\Request;

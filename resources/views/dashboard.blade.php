@@ -3,6 +3,8 @@
 @section('content')
 <div class="dashboard-wrapper">
 
+@section('page-name', 'Dashboard')
+
     {{-- TOP STATS ROW --}}
     <div class="stats-grid">
 

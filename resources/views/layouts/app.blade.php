@@ -5,6 +5,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>{{ config('app.name', 'Admin Monitoring') }}</title>
+        <link rel="icon" type="image/png" href="{{ asset('images/CDRRMD-Logo.png') }}">
+        <link rel="apple-touch-icon" href="{{ asset('images/CDRRMD-Logo.png') }}">
+        <meta name="msapplication-TileImage" content="{{ asset('images/CDRRMD-Logo.png') }}">
 
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
             @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -21,6 +24,7 @@
                 --accent: #0f62fe;
                 --accent-soft: #dbe7ff;
                 --shadow: 0 22px 60px rgba(18, 32, 51, 0.12);
+                --sidebar-width: 260px;
             }
 
             * {
@@ -44,6 +48,27 @@
 
             .app-shell {
                 min-height: 100vh;
+                display: block;
+            }
+
+            .app-frame {
+                display: flex;
+                min-height: calc(100vh - 0px);
+            }
+
+            .app-sidebar {
+                width: var(--sidebar-width);
+                min-width: var(--sidebar-width);
+                background: #ffffff;
+                border-right: 1px solid var(--border);
+                padding: 18px 16px;
+                display:flex;
+                flex-direction:column;
+                gap:14px;
+            }
+
+            .app-main-column {
+                flex: 1;
                 display: flex;
                 flex-direction: column;
             }
@@ -58,8 +83,10 @@
             }
 
             .app-header-inner {
-                width: min(1280px, calc(100% - 32px));
-                margin: 0 auto;
+                width: 100%;
+                max-width: none; /* allow header to span full main column */
+                margin: 0; /* align to left of main column (beside sidebar) */
+                padding: 0 36px; /* extra right padding so controls sit closer to the main column edge */
                 min-height: 72px;
                 display: flex;
                 align-items: center;
@@ -77,13 +104,11 @@
             .brand-mark {
                 width: 40px;
                 height: 40px;
-                border-radius: 14px;
                 display: grid;
                 place-items: center;
-                background: linear-gradient(135deg, var(--accent), #3d8bfd);
-                color: #fff;
-                font-weight: 800;
-                box-shadow: 0 12px 24px rgba(15, 98, 254, 0.28);
+                background: transparent;
+                box-shadow: none;
+                padding: 0;
             }
 
             .brand-copy strong {
@@ -100,27 +125,28 @@
 
             .nav {
                 display: flex;
-                align-items: center;
-                gap: 10px;
-                flex-wrap: wrap;
+                flex-direction: column;
+                gap: 6px;
+                margin-top: 6px;
             }
 
             .nav a {
                 text-decoration: none;
-                padding: 10px 14px;
-                border-radius: 999px;
+                padding: 10px 12px;
+                border-radius: 8px;
                 color: var(--muted);
+                display:flex;align-items:center;gap:8px;font-weight:600;
             }
 
-            .nav a:hover,
             .nav a.active {
-                color: var(--text);
+                color: var(--accent);
                 background: var(--accent-soft);
             }
 
             .app-main {
                 flex: 1;
                 width: 100%;
+                padding: 18px 24px;
             }
 
             .app-footer {
@@ -131,47 +157,30 @@
                 font-size: 13px;
             }
 
-            @media (max-width: 760px) {
-                .app-header-inner {
-                    width: min(1280px, calc(100% - 24px));
-                    min-height: auto;
-                    padding: 14px 0;
-                    flex-direction: column;
-                    align-items: flex-start;
-                }
-
-                .app-footer {
-                    width: min(1280px, calc(100% - 24px));
-                }
+            @media (max-width: 1024px) {
+                .app-sidebar { display: none; }
+                .app-frame { display:block; }
+                .app-header-inner { width: calc(100% - 32px); }
             }
         </style>
     </head>
     <body>
         <div class="app-shell">
-            <header class="app-header">
-                <div class="app-header-inner">
-                    <a href="{{ url('/') }}" class="brand">
-                        <span class="brand-mark">AM</span>
-                        <span class="brand-copy">
-                            <strong>{{ config('app.name', 'Admin Monitoring') }}</strong>
-                            <span>Personnel monitoring dashboard</span>
-                        </span>
-                    </a>
+            <div class="app-frame">
+                @include('partials.sidebar')
 
-                    <nav class="nav" aria-label="Primary navigation">
-                        <a href="{{ url('/dashboard') }}" class="{{ request()->is('dashboard') ? 'active' : '' }}">Dashboard</a>
-                        <a href="{{ route('reports.index') }}" class="{{ request()->is('reports*') ? 'active' : '' }}">Reports</a>
-                    </nav>
+                <div class="app-main-column">
+                    @include('partials.topbar')
+
+                    <main class="app-main">
+                        @yield('content')
+                    </main>
+
+                    <footer class="app-footer">
+                        {{ config('app.name', 'Admin Monitoring') }} · Local development environment
+                    </footer>
                 </div>
-            </header>
-
-            <main class="app-main">
-                @yield('content')
-            </main>
-
-            <footer class="app-footer">
-                {{ config('app.name', 'Admin Monitoring') }} · Local development environment
-            </footer>
+            </div>
         </div>
     </body>
 </html>
