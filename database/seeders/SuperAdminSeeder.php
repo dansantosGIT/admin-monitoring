@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -11,21 +12,18 @@ class SuperAdminSeeder extends Seeder
     public function run()
     {
         $email = 'superadmin@sanjuan.gov.ph';
+        $password = 'P@ssw0rd123';
 
-        $existing = DB::table('users')->where('email', $email)->first();
-        if ($existing) {
-            $id = $existing->id;
-            $this->command->info("Superadmin already exists (id={$id}).");
-        } else {
-            $id = DB::table('users')->insertGetId([
-                'name' => 'Super Admin',
-                'email' => $email,
-                'password' => Hash::make('P@ssw0rd123'),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-            $this->command->info("Created superadmin (id={$id}).");
-        }
+        $user = User::updateOrCreate(
+            ['email' => $email],
+            [
+                'name' => $email,
+                'password' => Hash::make($password),
+            ]
+        );
+
+        $id = $user->id;
+        $this->command->info("Superadmin account ready (id={$id}).");
 
         DB::table('roles')->insertOrIgnore([
             'name' => 'superadmin',
@@ -34,14 +32,16 @@ class SuperAdminSeeder extends Seeder
             'updated_at' => now(),
         ]);
 
-        DB::table('account_approvals')->insertOrIgnore([
-            'user_id' => $id,
-            'status' => 'Approved',
-            'reviewed_by' => $id,
-            'reason' => 'Initial superadmin created',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        DB::table('account_approvals')->updateOrInsert(
+            ['user_id' => $id],
+            [
+                'status' => 'Approved',
+                'reviewed_by' => $id,
+                'reason' => 'Initial superadmin created',
+                'updated_at' => now(),
+                'created_at' => now(),
+            ]
+        );
 
         $this->command->info('Seeder finished.');
     }
