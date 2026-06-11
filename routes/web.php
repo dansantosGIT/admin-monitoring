@@ -3,9 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ReportController;
 
-// Welcome Landing Page
+// Welcome Landing Page — redirect to login
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
 // Monitoring Dashboard

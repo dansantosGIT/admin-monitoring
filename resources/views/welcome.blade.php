@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>{{ config('app.name', 'CDRRMD') }}</title>
 
         @fonts
 
@@ -150,7 +150,7 @@
                 color: #bbb;
                 font-size: 12px;
             }
-        </style>
+        </style>g
         <div class="welcome-container">
             <div class="welcome-logo">🏢</div>
             <h1 class="welcome-h1">WELCOME!!!</h1>
