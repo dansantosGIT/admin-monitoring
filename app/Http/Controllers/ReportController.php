@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\User;
 use App\Models\Report;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -124,6 +125,15 @@ class ReportController extends Controller
     public function dashboard()
     {
         $stats = [
+            'total_employees' => User::count(),
+            'active_employees' => 0,
+            'inactive_employees' => 0,
+            'pending_irs' => 0,
+            'job_order_count' => 0,
+            'permanent_count' => 0,
+            'present_today' => 0,
+            'on_leave_today' => 0,
+            'absent_today' => 0,
             'total_reports' => Report::count(),
             'published_reports' => Report::where('status', 'published')->count(),
             'draft_reports' => Report::where('status', 'draft')->count(),
