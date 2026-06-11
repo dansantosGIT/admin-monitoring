@@ -1,5 +1,5 @@
 <aside class="app-sidebar" aria-label="Main sidebar">
-    <a href="{{ url('/') }}" class="brand">
+    <a href="{{ route('dashboard') }}" class="brand">
         <span class="brand-mark">
             <img src="{{ asset('images/CDRRMD-Logo.png') }}" alt="CDRRMD" style="width:40px;height:40px;object-fit:cover;border-radius:50%;border:0;box-shadow:none;">
         </span>
@@ -30,5 +30,14 @@
                 @endif
             </div>
         </div>
+
+        @auth
+            <form method="POST" action="{{ route('logout') }}" style="margin-top:12px">
+                @csrf
+                <button type="submit" style="display:block;width:100%;text-align:left;padding:10px 12px;border:none;background:none;color:var(--muted);font-weight:600;cursor:pointer">
+                    Logout
+                </button>
+            </form>
+        @endauth
     </div>
 </aside>
