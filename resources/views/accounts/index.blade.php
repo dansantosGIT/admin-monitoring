@@ -28,6 +28,20 @@
         .accounts-summary{color:var(--muted);font-size:13px;margin-bottom:8px}
         .action-btn{padding:8px 10px;border-radius:6px;border:none;cursor:pointer}
 
+        /* Button base and hover (applies to table and modal buttons) */
+        .btn{display:inline-flex;align-items:center;justify-content:center;padding:8px 10px;border-radius:6px;border:1px solid transparent;background:transparent;color:inherit;cursor:pointer;transition:transform .12s ease,box-shadow .12s ease,background-color .12s ease,border-color .12s ease}
+        .btn:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(13,30,60,0.12)}
+        .btn-primary{background:#1f8ef1;color:#fff;border-color:#1f8ef1}
+        .btn-primary:hover{background:#166fd3}
+
+        /* Modal close (X) button styling */
+        .account-modal .close-btn{transition:background .12s ease, transform .12s ease, box-shadow .12s ease; border:1px solid transparent;background:#fff}
+        .account-modal .close-btn:hover{background:#eef6ff;transform:scale(1.05);box-shadow:0 6px 18px rgba(13,30,60,0.08);border-color:rgba(0,0,0,0.04)}
+
+        /* Footer modal close button box styling */
+        .account-modal .modal-inner .modal-close{padding:8px 12px;border-radius:6px;border:1px solid #eee;background:#fff;cursor:pointer;transition:transform .12s ease,box-shadow .12s ease,background-color .12s ease}
+        .account-modal .modal-inner .modal-close:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(13,30,60,0.08);background:#f2f6fb}
+
         /* Pagination */
         .pagination{display:flex;gap:6px;padding:0;margin:0;list-style:none}
         .pagination li{display:inline-block}
@@ -41,7 +55,9 @@
         .badge-rejected{background:#fff0f0;color:#b71c1c}
 
         /* Modal styling */
-        .account-modal .modal-inner{background:#ffffff;padding:22px;border-radius:12px;box-shadow:0 20px 50px rgba(13,30,60,0.12);max-width:620px;width:96%}
+        .account-modal .modal-inner{background:#ffffff;padding:22px;border-radius:12px;box-shadow:0 20px 50px rgba(13,30,60,0.12);max-width:720px;width:96%}
+        .account-modal .modal-title{font-size:18px;font-weight:800;color:#0b1220;margin-bottom:6px}
+        .account-modal .modal-actions{display:flex;gap:8px;align-items:center}
         .account-modal .modal-row{display:flex;gap:10px;padding:8px 0}
         .account-modal .modal-row .label{width:120px;color:var(--muted);font-weight:600}
         .account-modal .modal-row .value{flex:1;color:#111}
@@ -71,10 +87,12 @@
             <tr style="border-top:1px solid rgba(0,0,0,0.06);cursor:pointer" onclick="showDetails(this)"
                 data-name="{{ e($u->name) }}"
                 data-email="{{ e($u->email) }}"
-                data-registered="{{ $u->created_at->setTimezone(config('app.timezone'))->toDateTimeString() }}"
+                data-registered="{{ $u->created_at->setTimezone(config('app.timezone'))->format('F j, Y g:i A') }}"
                 data-status="{{ $u->status ?? 'approved' }}"
                 data-role="{{ $u->role ?? '' }}"
-                data-rejection="{{ $u->rejection_reason ?? '' }}">
+                data-rejection="{{ $u->rejection_reason ?? '' }}"
+                data-approve-url="{{ route('accounts.approve', $u) }}"
+                data-reject-url="{{ route('accounts.reject', $u) }}">
                 <td style="padding:12px 8px">{{ $u->name }}</td>
                 <td style="padding:12px 8px">{{ $u->email }}</td>
                 <td style="padding:12px 8px">{{ $u->created_at->diffForHumans() }}</td>
@@ -140,14 +158,36 @@
     <div class="account-modal" style="display:flex;align-items:center;justify-content:center">
         <div class="modal-inner" style="position:relative">
             <button class="close-btn" onclick="document.getElementById('account-details-modal').style.display='none'" aria-label="Close">×</button>
-            <h3 id="modal-name" style="margin-top:0">Request details</h3>
+            <h3 id="modal-name" class="modal-title" style="margin-top:0">Request details</h3>
             <div class="modal-row"><div class="label">Email</div><div class="value" id="modal-email"></div></div>
             <div class="modal-row"><div class="label">Registered</div><div class="value" id="modal-registered"></div></div>
             <div class="modal-row"><div class="label">Role</div><div class="value" id="modal-role"></div></div>
             <div class="modal-row"><div class="label">Status</div><div class="value" id="modal-status"></div></div>
             <div id="modal-rejection" style="display:none;margin-top:6px"><div class="label">Rejection reason</div><div class="value"><span></span></div></div>
-            <div style="text-align:right;margin-top:12px">
-                <button onclick="document.getElementById('account-details-modal').style.display='none'" style="padding:8px 12px;border-radius:6px">Close</button>
+
+            <div style="margin-top:12px">
+                <div class="modal-actions" style="display:flex;gap:8px;align-items:center;justify-content:flex-end">
+                    {{-- Approve form (action set dynamically) --}}
+                    <form id="modal-approve-form" method="POST" style="display:none">
+                        @csrf
+                        <button type="submit" class="btn btn-primary" style="padding:8px 12px;border-radius:6px;background:#1f8ef1;border:none;color:white">Approve</button>
+                    </form>
+
+                    {{-- Reject: initial button toggles the reject input --}}
+                    <button id="modal-reject-btn" type="button" class="btn" style="padding:8px 12px;border-radius:6px;border:1px solid #eee;background:#fff;color:#d23">Reject</button>
+
+                    {{-- Inline reject form (hidden until confirm) --}}
+                    <form id="modal-reject-form" method="POST" style="display:none;max-width:420px;width:100%">
+                        @csrf
+                        <div style="display:flex;gap:8px;align-items:center">
+                            <input name="reason" placeholder="Optional rejection reason" style="flex:1;padding:8px;border-radius:6px;border:1px solid #ddd">
+                            <button type="submit" style="padding:8px 12px;border-radius:6px;background:#ff6b6b;border:none;color:white">Confirm</button>
+                            <button type="button" id="modal-reject-cancel" style="padding:8px 12px;border-radius:6px;margin-left:6px">Cancel</button>
+                        </div>
+                    </form>
+
+                    <button class="modal-close" onclick="document.getElementById('account-details-modal').style.display='none'" style="padding:8px 12px;border-radius:6px">Close</button>
+                </div>
             </div>
         </div>
     </div>
@@ -161,18 +201,56 @@ function showDetails(el){
     var status = el.dataset.status || '';
     var role = el.dataset.role || '';
     var rejection = el.dataset.rejection || '';
+    var approveUrl = el.dataset.approveUrl || '';
+    var rejectUrl = el.dataset.rejectUrl || '';
 
     document.getElementById('modal-name').textContent = name;
     document.getElementById('modal-email').textContent = email;
     document.getElementById('modal-registered').textContent = registered;
     document.getElementById('modal-status').textContent = status;
     document.getElementById('modal-role').textContent = role;
+    // Highlight name
+    var titleEl = document.getElementById('modal-name');
+    titleEl.textContent = name;
+    titleEl.classList.add('modal-title');
     if(rejection){
         var rej = document.getElementById('modal-rejection');
         rej.style.display='block';
         rej.querySelector('span').textContent = rejection;
     } else {
         document.getElementById('modal-rejection').style.display='none';
+    }
+
+    // Setup approve/reject actions
+    var approveForm = document.getElementById('modal-approve-form');
+    var rejectForm = document.getElementById('modal-reject-form');
+    var modalRejectBtn = document.getElementById('modal-reject-btn');
+    var modalRejectCancel = document.getElementById('modal-reject-cancel');
+
+    if(status === 'pending'){
+        if(approveForm){ approveForm.style.display = 'inline-block'; approveForm.action = approveUrl; }
+        if(modalRejectBtn){ modalRejectBtn.style.display = 'inline-block'; }
+    } else {
+        if(approveForm){ approveForm.style.display = 'none'; }
+        if(modalRejectBtn){ modalRejectBtn.style.display = 'none'; }
+    }
+
+    if(rejectForm){ rejectForm.style.display = 'none'; rejectForm.action = rejectUrl; }
+
+    // Wire reject button to show inline reject form
+    if(modalRejectBtn){
+        modalRejectBtn.onclick = function(e){
+            e.stopPropagation();
+            if(rejectForm){ rejectForm.style.display = 'flex'; }
+            modalRejectBtn.style.display = 'none';
+        }
+    }
+    if(modalRejectCancel){
+        modalRejectCancel.onclick = function(e){
+            e.stopPropagation();
+            if(rejectForm){ rejectForm.style.display = 'none'; }
+            if(modalRejectBtn){ modalRejectBtn.style.display = 'inline-block'; }
+        }
     }
 
     document.getElementById('account-details-modal').style.display='flex';
