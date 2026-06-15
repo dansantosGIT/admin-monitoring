@@ -13,6 +13,8 @@
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @endif
 
+        @stack('styles')
+
         <style>
             :root {
                 color-scheme: light;
@@ -147,6 +149,8 @@
                 flex: 1;
                 width: 100%;
                 padding: 18px 24px;
+                display: flex;
+                justify-content: center;
             }
 
             .app-footer {
@@ -182,5 +186,7 @@
                 </div>
             </div>
         </div>
+
+        @stack('scripts')
     </body>
 </html>
