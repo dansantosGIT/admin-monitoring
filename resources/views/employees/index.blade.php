@@ -3,136 +3,119 @@
 @section('page-name', 'Employees')
 
 @section('content')
-<div class="dashboard-wrapper">
-    <div class="card">
-        <div class="card__header">
-            <div>
-                <h2 class="card__title">Employees</h2>
-                <p class="card__subtitle">Add and manage employee record details for the monitoring system.</p>
-            </div>
-            <button id="openEmployeeForm" class="btn btn--primary" type="button">Add Employee Details</button>
+<div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:12px">
+        <div>
+            <h2 style="margin:0">Employees</h2>
+            <div style="color:var(--muted);font-size:13px">Manage employee records and Personal Data Sheets</div>
         </div>
-
-        <div style="padding:1.25rem; display:grid; gap:1rem;">
-            <div class="mini-summary-grid">
-                <article class="mini-summary-card">
-                    <span>Registered Employees</span>
-                    <strong>0</strong>
-                </article>
-                <article class="mini-summary-card">
-                    <span>Active Records</span>
-                    <strong>0</strong>
-                </article>
-                <article class="mini-summary-card">
-                    <span>Pending Review</span>
-                    <strong>0</strong>
-                </article>
-            </div>
-
-            <div class="placeholder-box">
-                <h3 style="margin:0 0 0.35rem; font-size:1rem;">Employee record section</h3>
-                <p style="margin:0; color:#6b7280; font-size:0.92rem;">Use the button above to capture employee details for records until the backend save flow is connected.</p>
-            </div>
-
-            <div id="recordStatus" class="record-status" aria-live="polite">Ready to add a new employee record.</div>
+        <div style="display:flex;gap:8px;align-items:center">
+            <input id="employee-search" type="search" placeholder="Search employees..." aria-label="Search employees" style="padding:10px 12px;border:1px solid #e6e9ee;border-radius:8px;width:320px;background:#fff;color:#111">
+            <a href="{{ route('employees.create') }}" class="btn btn-primary" style="padding:10px 14px;border-radius:10px;font-weight:700">+ Add Employee</a>
         </div>
     </div>
-</div>
 
-<div class="employee-modal-overlay" id="employeeModal" aria-hidden="true">
-    <div class="employee-modal" role="dialog" aria-modal="true" aria-labelledby="employeeFormTitle">
-        <div class="employee-modal__header">
-            <div>
-                <div id="employeeFormTitle" class="employee-modal__title">Add Employee Details</div>
-                <p class="employee-modal__subtitle">Fill in the employee record section for monitoring and file maintenance.</p>
-            </div>
-            <button id="closeEmployeeForm" class="btn btn--ghost" type="button">Close</button>
-        </div>
+    @if(session('success'))
+        <div style="padding:10px;background:#e6ffed;border:1px solid #b7f0c6;border-radius:6px;margin-bottom:12px">{{ session('success') }}</div>
+    @endif
 
-        <form id="employeeRecordForm" class="employee-form">
-            <div class="employee-form__grid">
-                <label>Last Name<input type="text" name="last_name" placeholder="Pedro" required></label>
-                <label>First Name<input type="text" name="first_name" placeholder="John" required></label>
-                <label>Middle Initial<input type="text" name="middle_name" placeholder="F." maxlength="10"></label>
-                <label>Suffix<input type="text" name="suffix" placeholder="Jr." maxlength="10"></label>
-                <label>Section<input type="text" name="section" placeholder="Operations" required></label>
-                <label>Department<select name="department" required>
-                    <option value="">Select department</option>
-                    <option value="OPERATIONS">OPERATIONS</option>
-                    <option value="CEDOC">CEDOC</option>
-                    <option value="PLANNING">PLANNING</option>
-                    <option value="ADMIN">ADMIN</option>
-                </select></label>
-                <label>Age<input type="number" name="age" min="18" max="80" placeholder="32"></label>
-                <label>Birthdate<input type="date" name="birthdate"></label>
-                <label>Employment Type<select name="employment_type">
-                    <option value="permanent">Permanent</option>
-                    <option value="job_order">Job Order</option>
-                </select></label>
-                <label>Status<select name="status">
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
-                    <option value="Separated">Separated</option>
-                </select></label>
-            </div>
-            <label>Remarks<textarea name="remarks" rows="3" placeholder="Add notes for the employee record"></textarea></label>
-            <div class="employee-form__actions">
-                <button class="btn btn--ghost" type="button" id="cancelEmployeeForm">Cancel</button>
-                <button class="btn btn--primary" type="submit">Save Employee Details</button>
-            </div>
-        </form>
+    <style>
+        .table-wrap{ background:linear-gradient(180deg,#ffffff 0%, #fbfdff 100%); padding:12px }
+        .emp-table { width:100%; border-collapse:collapse; background:transparent }
+        .emp-table thead th { background:#f8fafc; color:var(--muted); font-weight:700; padding:12px; text-align:left; border-bottom:1px solid #eef2f6 }
+        .emp-table td { padding:12px; border-bottom:1px solid #f3f6f9; vertical-align:middle }
+        .emp-row:hover { background:#fbfdff }
+        .emp-photo { width:40px;height:40px;border-radius:50%;object-fit:cover;border:1px solid #eee }
+
+        .btn { display:inline-flex;align-items:center;justify-content:center;padding:8px 10px;border-radius:8px;border:none;background:#374151;color:white;text-decoration:none; cursor:pointer; transition:transform .12s ease,box-shadow .12s ease,opacity .12s ease }
+        .btn:hover{ transform:translateY(-3px); box-shadow:0 10px 30px rgba(13,30,60,0.08); opacity:0.98 }
+        .btn.secondary{ background:#f3f4f6; color:#111; border:1px solid #e6e9ee }
+        .btn.danger{ background:#ef4444 }
+        .btn-primary{ background:#0b6df0 }
+        .action-group{ display:flex; gap:8px; justify-content:flex-end }
+    </style>
+
+    <div class="table-wrap" style="overflow:auto;border-radius:8px;border:1px solid #f3f4f6">
+        <table class="emp-table">
+            <thead>
+                <tr>
+                    <th style="width:60px">#</th>
+                    <th style="width:56px"></th>
+                    <th>Name</th>
+                    <th>Position</th>
+                    <th>Department</th>
+                    <th>Employment</th>
+                    <th style="width:140px;text-align:right">Date Hired</th>
+                    <th style="width:180px;text-align:right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($employees as $emp)
+                <tr class="emp-row">
+                    <td>{{ $emp->id }}</td>
+                    <td>
+                        @if($emp->photo_path)
+                            <img src="{{ asset('storage/'.$emp->photo_path) }}" class="emp-photo" alt="photo">
+                        @else
+                            <div class="emp-photo" style="display:inline-flex;align-items:center;justify-content:center;background:#f3f4f6;color:var(--muted)">
+                                {{ strtoupper(substr($emp->first_name,0,1).substr($emp->last_name,0,1)) }}
+                            </div>
+                        @endif
+                    </td>
+                    <td>{{ $emp->last_name }}, {{ $emp->first_name }} {{ $emp->middle_name }}</td>
+                    <td>{{ $emp->position }}</td>
+                    <td>{{ $emp->department }}</td>
+                    <td>{{ $emp->employment_type == 'JO' ? 'Job Order' : $emp->employment_type }}</td>
+                    <td style="text-align:right">{{ optional($emp->date_hired)->format('F j, Y') }}</td>
+                    <td>
+                        <div class="action-group">
+                            <a href="{{ route('employees.show', $emp) }}" class="btn secondary">View</a>
+                            <a href="{{ route('employees.edit', $emp) }}" class="btn">Edit</a>
+                            <form method="POST" action="{{ route('employees.destroy', $emp) }}" style="display:inline-block" onsubmit="return confirm('Delete this employee?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn danger">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                @empty
+                <tr><td colspan="8" style="padding:12px">No employees yet. Click <strong>Add Employee</strong> to create one.</td></tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
-</div>
 
-<style>
-.mini-summary-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
-@media (max-width: 800px) { .mini-summary-grid { grid-template-columns:1fr; } }
-.mini-summary-card { background:#fff; border:1px solid #f3f4f6; border-radius:12px; padding:12px; box-shadow:0 1px 3px rgba(0,0,0,0.05); }
-.mini-summary-card span { display:block; font-size:12px; color:#6b7280; text-transform:uppercase; letter-spacing:.08em; }
-.mini-summary-card strong { display:block; font-size:1.35rem; color:#111827; margin-top:6px; }
-.placeholder-box { background:#fff7f7; border:1px solid #fde2e2; border-radius:12px; padding:1rem; }
-.record-status { color:#c0392b; font-size:0.92rem; font-weight:600; }
-.employee-modal-overlay { position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(2,6,23,0.45); z-index:1000; }
-.employee-modal-overlay.open { display:flex; }
-.employee-modal { width:min(860px, 96%); max-height:88vh; overflow:auto; background:#fff; border-radius:14px; box-shadow:0 12px 30px rgba(2,6,23,0.18); padding:14px; }
-.employee-modal__header { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; border-bottom:1px solid #f3f4f6; padding-bottom:12px; margin-bottom:12px; }
-.employee-modal__title { font-size:1.08rem; font-weight:800; color:#111827; }
-.employee-modal__subtitle { margin:4px 0 0; color:#6b7280; font-size:0.92rem; }
-.employee-form__grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
-@media (max-width: 700px) { .employee-form__grid { grid-template-columns:1fr; } }
-.employee-form label { display:grid; gap:6px; font-size:0.92rem; color:#374151; font-weight:600; }
-.employee-form input, .employee-form select, .employee-form textarea { border:1px solid #e5e7eb; border-radius:10px; padding:10px; font-size:0.95rem; color:#111827; background:#fff; }
-.employee-form textarea { resize:vertical; }
-.employee-form__actions { display:flex; justify-content:flex-end; gap:8px; margin-top:12px; }
-</style>
+    <div style="margin-top:12px">{{ $employees->links() }}</div>
 
-@push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const openBtn = document.getElementById('openEmployeeForm');
-        const closeBtn = document.getElementById('closeEmployeeForm');
-        const cancelBtn = document.getElementById('cancelEmployeeForm');
-        const overlay = document.getElementById('employeeModal');
-        const form = document.getElementById('employeeRecordForm');
-        const status = document.getElementById('recordStatus');
-
-        function openModal() { overlay.classList.add('open'); overlay.setAttribute('aria-hidden', 'false'); }
-        function closeModal() { overlay.classList.remove('open'); overlay.setAttribute('aria-hidden', 'true'); }
-
-        openBtn && openBtn.addEventListener('click', openModal);
-        closeBtn && closeBtn.addEventListener('click', closeModal);
-        cancelBtn && cancelBtn.addEventListener('click', closeModal);
-        overlay && overlay.addEventListener('click', function (e) { if (e.target === overlay) closeModal(); });
-        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
-
-        form && form.addEventListener('submit', function (e) {
-            e.preventDefault();
-            const data = Object.fromEntries(new FormData(form).entries());
-            status.textContent = `Placeholder saved: ${data.first_name || 'Employee'} ${data.last_name || ''} for ${data.section || 'section'} records.`;
-            form.reset();
-            closeModal();
+    <script>
+        document.addEventListener('DOMContentLoaded', function(){
+            const input = document.getElementById('employee-search');
+            if(!input) return;
+            const rows = Array.from(document.querySelectorAll('.emp-row'));
+            const pager = document.querySelector('.pagination');
+            let debounce;
+            function filter(){
+                const q = input.value.trim().toLowerCase();
+                if(!q){
+                    rows.forEach(r=> r.style.display='');
+                    if(pager) pager.style.display = '';
+                    return;
+                }
+                rows.forEach(r=>{
+                    const cells = r.getElementsByTagName('td');
+                    const name = (cells[2] && cells[2].textContent || '').toLowerCase();
+                    const pos = (cells[3] && cells[3].textContent || '').toLowerCase();
+                    const dept = (cells[4] && cells[4].textContent || '').toLowerCase();
+                    const empType = (cells[5] && cells[5].textContent || '').toLowerCase();
+                    const haystack = name + ' ' + pos + ' ' + dept + ' ' + empType;
+                    r.style.display = haystack.indexOf(q) !== -1 ? '' : 'none';
+                });
+                if(pager) pager.style.display = 'none';
+            }
+            input.addEventListener('input', ()=>{ clearTimeout(debounce); debounce = setTimeout(filter, 150); });
         });
-    });
-</script>
-@endpush
+    </script>
+</div>
+
 @endsection

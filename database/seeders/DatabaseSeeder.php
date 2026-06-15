@@ -26,5 +26,8 @@ class DatabaseSeeder extends Seeder
                 'password' => 'password',
             ]
         );
+
+        // Seed sample employees
+        $this->call([EmployeeSeeder::class]);
     }
 }
