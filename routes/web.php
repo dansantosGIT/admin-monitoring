@@ -6,28 +6,42 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\IncidentController;
+use App\Http\Controllers\AccountController;
 
 // Welcome Landing Page — redirect to login
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
-// Monitoring Dashboard
-Route::get('/dashboard', [ReportController::class, 'dashboard'])->name('dashboard');
+Route::middleware('auth')->group(function () {
+    // Monitoring Dashboard
+    Route::get('/dashboard', [ReportController::class, 'dashboard'])->name('dashboard');
 
-// System Health Check
-Route::get('/health', [ReportController::class, 'systemHealth'])->name('health');
+    // System Health Check
+    Route::get('/health', [ReportController::class, 'systemHealth'])->name('health');
 
-// Reports Resource Routes
-Route::resource('reports', ReportController::class);
+    // Reports Resource Routes
+    Route::resource('reports', ReportController::class);
 
-// Report Export Routes
-Route::get('/reports/{report}/export-excel', [ReportController::class, 'exportExcel'])->name('reports.export-excel');
-Route::get('/reports/{report}/export-pdf', [ReportController::class, 'exportPDF'])->name('reports.export-pdf');
+    // Report Export Routes
+    Route::get('/reports/{report}/export-excel', [ReportController::class, 'exportExcel'])->name('reports.export-excel');
+    Route::get('/reports/{report}/export-pdf', [ReportController::class, 'exportPDF'])->name('reports.export-pdf');
 
-// Legacy Reports URL — redirect to the new reports index
-Route::get('/admin/reports', function () {
-    return redirect()->route('reports.index');
+    // Legacy Reports URL — redirect to the new reports index
+    Route::get('/admin/reports', function () {
+        return redirect()->route('reports.index');
+    });
+
+    // Resource routes for sidebar pages
+    Route::resource('employees', EmployeeController::class);
+    Route::resource('attendance', AttendanceController::class);
+    Route::resource('incidents', IncidentController::class);
+
+    // Account approvals (super-admin)
+    Route::get('/accounts', [AccountController::class, 'index'])->name('accounts.index');
+    Route::post('/accounts/{user}/approve', [AccountController::class, 'approve'])->name('accounts.approve');
+    Route::post('/accounts/{user}/reject', [AccountController::class, 'reject'])->name('accounts.reject');
+    Route::delete('/accounts/{user}', [AccountController::class, 'destroy'])->name('accounts.destroy');
 });
 
 // Registration route (simple preview)
@@ -63,21 +77,6 @@ Route::post('/register', function (Request $request) {
     $user->save();
 
     return redirect()->route('register')->with('registered', true);
-});
-
-// Resource routes for sidebar pages
-Route::resource('employees', EmployeeController::class);
-Route::resource('attendance', AttendanceController::class);
-Route::resource('incidents', IncidentController::class);
-
-// Account approvals (super-admin)
-use App\Http\Controllers\AccountController;
-
-Route::middleware('auth')->group(function () {
-    Route::get('/accounts', [AccountController::class, 'index'])->name('accounts.index');
-    Route::post('/accounts/{user}/approve', [AccountController::class, 'approve'])->name('accounts.approve');
-    Route::post('/accounts/{user}/reject', [AccountController::class, 'reject'])->name('accounts.reject');
-    Route::delete('/accounts/{user}', [AccountController::class, 'destroy'])->name('accounts.destroy');
 });
 
 // Login POST handler

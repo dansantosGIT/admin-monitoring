@@ -21,19 +21,22 @@ class ReportExport implements FromCollection, WithHeadings, WithMapping
      */
     public function collection()
     {
-        // Return the report data in a format suitable for Excel export
-        $rows = [];
-        
-        if (is_array($this->report->data)) {
-            foreach ($this->report->data as $key => $value) {
-                $rows[] = [
-                    'key' => $key,
-                    'value' => is_array($value) ? json_encode($value) : $value,
-                ];
-            }
-        }
-
-        return collect($rows);
+        return collect([
+            ['key' => 'Incident Code', 'value' => $this->report->incident_code],
+            ['key' => 'Date of Incident', 'value' => optional($this->report->date_of_incident)->format('M d, Y')],
+            ['key' => 'Employee', 'value' => $this->report->employee_name],
+            ['key' => 'Department', 'value' => $this->report->department],
+            ['key' => 'Incident Type', 'value' => ucwords(str_replace('_', ' ', $this->report->incident_type))],
+            ['key' => 'Item Name', 'value' => $this->report->item_name],
+            ['key' => 'Serial Number', 'value' => $this->report->property_serial_no ?: 'N/A'],
+            ['key' => 'Location', 'value' => $this->report->location],
+            ['key' => 'Severity', 'value' => ucfirst($this->report->severity)],
+            ['key' => 'Status', 'value' => ucwords(str_replace('_', ' ', $this->report->status))],
+            ['key' => 'Estimated Cost', 'value' => $this->report->estimated_cost !== null ? number_format((float) $this->report->estimated_cost, 2) : 'N/A'],
+            ['key' => 'Action Taken', 'value' => $this->report->action_taken ?: 'N/A'],
+            ['key' => 'Remarks', 'value' => $this->report->remarks ?: 'N/A'],
+            ['key' => 'Reported By', 'value' => optional($this->report->reportedBy)->name ?: 'System'],
+        ]);
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Employee;
 use App\Models\Report;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -13,103 +14,70 @@ class ReportSeeder extends Seeder
      */
     public function run(): void
     {
-        // Get or create a user
         $user = User::first() ?? User::factory()->create();
 
-        // Create sample system reports
-        Report::create([
-            'title' => 'System Health Check - Initial Setup',
-            'description' => 'Initial system health monitoring report after installation',
-            'type' => 'system',
-            'status' => 'published',
-            'data' => [
-                'database' => ['status' => 'healthy', 'response_time' => '2ms'],
-                'cache' => ['status' => 'healthy', 'hit_rate' => '85%'],
-                'storage' => ['status' => 'healthy', 'available_space' => '50GB'],
-                'memory' => ['used' => '256MB', 'available' => '2GB'],
-            ],
-            'generated_by' => $user->id,
-            'published_at' => now(),
+        $employees = Employee::count() ? Employee::all() : collect([
+            Employee::create([
+                'employee_number' => 'EMP-2026-001',
+                'first_name' => 'Juan',
+                'middle_name' => 'Santos',
+                'last_name' => 'Dela Cruz',
+                'employment_type' => 'Permanent',
+                'department' => 'Operations',
+                'position' => 'Disaster Response Officer',
+                'status' => 'Active',
+                'date_hired' => now()->subYears(4),
+            ]),
+            Employee::create([
+                'employee_number' => 'EMP-2026-002',
+                'first_name' => 'Maria',
+                'middle_name' => 'Lopez',
+                'last_name' => 'Santos',
+                'employment_type' => 'JO',
+                'department' => 'Logistics',
+                'position' => 'Supply Custodian',
+                'status' => 'Active',
+                'date_hired' => now()->subYears(2),
+            ]),
+            Employee::create([
+                'employee_number' => 'EMP-2026-003',
+                'first_name' => 'Pedro',
+                'middle_name' => 'Reyes',
+                'last_name' => 'Cruz',
+                'employment_type' => 'Permanent',
+                'department' => 'Administration',
+                'position' => 'Administrative Assistant',
+                'status' => 'Active',
+                'date_hired' => now()->subYears(6),
+            ]),
         ]);
 
-        // Create sample performance reports
-        Report::create([
-            'title' => 'Application Performance Report',
-            'description' => 'Weekly performance metrics and optimization suggestions',
-            'type' => 'performance',
-            'status' => 'published',
-            'data' => [
-                'page_load_time' => '1.2s',
-                'database_queries' => 45,
-                'api_response_time' => '340ms',
-                'error_rate' => '0.1%',
-                'uptime' => '99.95%',
-            ],
-            'generated_by' => $user->id,
-            'published_at' => now(),
-        ]);
+        $records = [
+            ['employee' => $employees[0], 'department' => 'Operations', 'type' => 'vehicle_incident', 'item' => 'Patrol Vehicle 4x4', 'serial' => 'DRRM-VH-001', 'location' => 'Barangay San Isidro', 'severity' => 'major', 'status' => 'under_investigation', 'cost' => 18500, 'action' => 'Vehicle taken to partner shop for inspection.', 'remarks' => 'Minor body dents and damaged side mirror.'],
+            ['employee' => $employees[1], 'department' => 'Logistics', 'type' => 'equipment_damage', 'item' => 'Portable Radio', 'serial' => 'RAD-88312', 'location' => 'City DRRM Warehouse', 'severity' => 'minor', 'status' => 'resolved', 'cost' => 2400, 'action' => 'Battery replaced and unit tested.', 'remarks' => 'Reported immediately after field deployment.'],
+            ['employee' => $employees[2], 'department' => 'Administration', 'type' => 'equipment_loss', 'item' => 'Laminator Machine', 'serial' => null, 'location' => 'Admin Office', 'severity' => 'critical', 'status' => 'pending', 'cost' => 45000, 'action' => null, 'remarks' => 'Unit missing after inventory count.'],
+            ['employee' => $employees[0], 'department' => 'Operations', 'type' => 'other', 'item' => 'First Aid Kit', 'serial' => 'FAK-19', 'location' => 'Evacuation Center A', 'severity' => 'minor', 'status' => 'closed', 'cost' => 800, 'action' => 'Replaced missing supplies and updated logbook.', 'remarks' => 'Closed after inventory reconciliation.'],
+            ['employee' => $employees[1], 'department' => 'Logistics', 'type' => 'vehicle_incident', 'item' => 'Motorcycle Unit', 'serial' => 'MV-2210', 'location' => 'Route to Barangay 6', 'severity' => 'major', 'status' => 'resolved', 'cost' => 9600, 'action' => 'Insurance claim filed and repairs completed.', 'remarks' => 'No personnel injuries.'],
+            ['employee' => $employees[2], 'department' => 'Administration', 'type' => 'equipment_damage', 'item' => 'Desktop Monitor', 'serial' => 'MON-145', 'location' => 'Records Section', 'severity' => 'minor', 'status' => 'pending', 'cost' => 5200, 'action' => null, 'remarks' => 'Screen cracked during office relocation.'],
+        ];
 
-        // Create sample user activity reports
-        Report::create([
-            'title' => 'User Activity Report',
-            'description' => 'Summary of user activities and engagement metrics',
-            'type' => 'user',
-            'status' => 'published',
-            'data' => [
-                'total_active_users' => 156,
-                'new_users_this_week' => 23,
-                'active_sessions' => 42,
-                'most_used_features' => ['Reports', 'Monitoring', 'Analytics'],
-                'user_satisfaction_score' => 4.5,
-            ],
-            'generated_by' => $user->id,
-            'published_at' => now()->subDays(1),
-        ]);
-
-        // Create a draft report
-        Report::create([
-            'title' => 'Q2 Monitoring Analysis - In Progress',
-            'description' => 'Quarterly comprehensive monitoring and performance analysis',
-            'type' => 'custom',
-            'status' => 'draft',
-            'data' => [
-                'period' => 'Q2 2026',
-                'status' => 'Data collection in progress',
-            ],
-            'generated_by' => $user->id,
-        ]);
-
-        // Create archived report
-        Report::create([
-            'title' => 'Q1 2026 Monitoring Report',
-            'description' => 'Q1 2026 comprehensive monitoring and performance analysis',
-            'type' => 'custom',
-            'status' => 'archived',
-            'data' => [
-                'period' => 'Q1 2026',
-                'summary' => 'All systems operating nominally',
-                'issues_resolved' => 12,
-            ],
-            'generated_by' => $user->id,
-            'published_at' => now()->subMonths(3),
-        ]);
-
-        // Generate additional reports for testing
-        for ($i = 1; $i <= 10; $i++) {
+        foreach ($records as $index => $record) {
             Report::create([
-                'title' => "Daily Monitoring Report - Day {$i}",
-                'description' => "Daily system monitoring report for Day {$i}",
-                'type' => 'system',
-                'status' => 'published',
-                'data' => [
-                    'date' => now()->subDays($i)->format('Y-m-d'),
-                    'uptime_percent' => 99.5 + (rand(0, 10) / 100),
-                    'request_count' => rand(5000, 15000),
-                    'error_count' => rand(5, 50),
-                    'avg_response_time' => rand(200, 800) . 'ms',
-                ],
-                'generated_by' => $user->id,
-                'published_at' => now()->subDays($i),
+                'incident_code' => sprintf('MIR-%d-%04d', now()->year, $index + 1),
+                'employee_id' => $record['employee']->id,
+                'department' => $record['department'],
+                'incident_type' => $record['type'],
+                'item_name' => $record['item'],
+                'property_serial_no' => $record['serial'],
+                'description' => ucfirst(str_replace('_', ' ', $record['type'])) . ' reported during routine operations.',
+                'location' => $record['location'],
+                'date_of_incident' => now()->subDays($index + 1),
+                'severity' => $record['severity'],
+                'estimated_cost' => $record['cost'],
+                'status' => $record['status'],
+                'action_taken' => $record['action'],
+                'reported_by' => $user->id,
+                'remarks' => $record['remarks'],
             ]);
         }
     }

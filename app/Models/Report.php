@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Report extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
+
+    protected $table = 'incident_reports';
 
     /**
      * The attributes that are mass assignable.
@@ -15,13 +18,22 @@ class Report extends Model
      * @var array
      */
     protected $fillable = [
-        'title',
+        'incident_code',
+        'employee_id',
+        'department',
+        'incident_type',
+        'item_name',
+        'property_serial_no',
         'description',
-        'type',
+        'location',
+        'date_of_incident',
+        'severity',
+        'estimated_cost',
         'status',
-        'data',
-        'generated_by',
-        'published_at',
+        'action_taken',
+        'reported_by',
+        'remarks',
+        'attachment_path',
     ];
 
     /**
@@ -30,85 +42,108 @@ class Report extends Model
      * @var array
      */
     protected $casts = [
-        'data' => 'array',
-        'published_at' => 'datetime',
+        'date_of_incident' => 'date',
+        'estimated_cost' => 'decimal:2',
+        'deleted_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
 
     /**
-     * Get the user who generated this report.
+     * Get the employee tied to the incident report.
      */
-    public function generatedBy()
+    public function employee()
     {
-        return $this->belongsTo(User::class, 'generated_by');
+        return $this->belongsTo(Employee::class);
     }
 
     /**
-     * Scope to only published reports.
+     * Get the user who filed the report.
      */
-    public function scopePublished($query)
+    public function reportedBy()
     {
-        return $query->where('status', 'published');
+        return $this->belongsTo(User::class, 'reported_by');
     }
 
     /**
-     * Scope to only draft reports.
+     * Get attachments for the incident report.
      */
-    public function scopeDraft($query)
+    public function attachments()
     {
-        return $query->where('status', 'draft');
+        return $this->hasMany(IncidentAttachment::class, 'incident_report_id');
     }
 
     /**
-     * Scope to filter by type.
+     * Scope to filter by a search term.
      */
-    public function scopeOfType($query, $type)
+    public function scopeSearch($query, ?string $term)
     {
-        return $query->where('type', $type);
+        if (! $term) {
+            return $query;
+        }
+
+        return $query->where(function ($builder) use ($term) {
+            $builder->where('incident_code', 'like', "%{$term}%")
+                ->orWhere('department', 'like', "%{$term}%")
+                ->orWhere('incident_type', 'like', "%{$term}%")
+                ->orWhere('item_name', 'like', "%{$term}%")
+                ->orWhere('location', 'like', "%{$term}%")
+                ->orWhereHas('employee', function ($employeeQuery) use ($term) {
+                    $employeeQuery->where('first_name', 'like', "%{$term}%")
+                        ->orWhere('last_name', 'like', "%{$term}%")
+                        ->orWhere('employee_number', 'like', "%{$term}%");
+                });
+        });
     }
 
     /**
-     * Get all reports created this month.
+     * Scope to filter by incident type.
      */
-    public function scopeThisMonth($query)
+    public function scopeOfType($query, ?string $type)
     {
-        return $query->whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year);
+        return $type ? $query->where('incident_type', $type) : $query;
     }
 
     /**
-     * Check if report is archived.
+     * Scope to filter by severity.
      */
-    public function isArchived(): bool
+    public function scopeOfSeverity($query, ?string $severity)
     {
-        return $this->status === 'archived';
+        return $severity ? $query->where('severity', $severity) : $query;
     }
 
     /**
-     * Check if report is published.
+     * Scope to filter by status.
      */
-    public function isPublished(): bool
+    public function scopeOfStatus($query, ?string $status)
     {
-        return $this->status === 'published';
+        return $status ? $query->where('status', $status) : $query;
     }
 
     /**
-     * Publish the report.
+     * Human readable employee name.
      */
-    public function publish(): void
+    public function getEmployeeNameAttribute(): string
     {
-        $this->update([
-            'status' => 'published',
-            'published_at' => now(),
-        ]);
+        $employee = $this->employee;
+
+        if (! $employee) {
+            return 'Unassigned';
+        }
+
+        return trim(implode(' ', array_filter([
+            $employee->first_name,
+            $employee->middle_name,
+            $employee->last_name,
+            $employee->suffix,
+        ])));
     }
 
     /**
-     * Archive the report.
+     * Human readable incident number.
      */
-    public function archive(): void
+    public function getDisplayCodeAttribute(): string
     {
-        $this->update(['status' => 'archived']);
+        return $this->incident_code ?: 'Pending';
     }
 }
