@@ -58,10 +58,9 @@
 
             <section style="background:#fff;padding:14px;border-radius:10px;border:1px solid #f3f4f6;margin-bottom:12px">
                 <h3 style="margin-top:0">Employment Details</h3>
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px">
                     <div><strong>Position</strong><div>{{ $employee->position }}</div></div>
                     <div><strong>Department</strong><div>{{ $employee->department }}</div></div>
-                    <div><strong>Section</strong><div>{{ $employee->section }}</div></div>
                 </div>
                 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px">
                     <div><strong>Date Hired</strong><div>{{ optional($employee->date_hired)->format('F j, Y') }}</div></div>

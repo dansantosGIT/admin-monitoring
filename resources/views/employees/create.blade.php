@@ -570,14 +570,22 @@
                             </div>
                             <div class="field">
                                 <label class="field-label">Department</label>
-                                <input class="field-input" name="department" value="{{ old('department') }}" placeholder="e.g. Operations">
+                                @php
+                                    $departments = ['Admin', 'Logistics', 'Operations', 'CEDOC', 'Planning'];
+                                    $selectedDepartment = old('department');
+                                @endphp
+                                <select class="field-select" name="department">
+                                    <option value="">Select department</option>
+                                    @foreach ($departments as $dept)
+                                        <option value="{{ $dept }}" {{ $selectedDepartment === $dept ? 'selected' : '' }}>{{ $dept }}</option>
+                                    @endforeach
+                                    @if ($selectedDepartment && ! in_array($selectedDepartment, $departments, true))
+                                        <option value="{{ $selectedDepartment }}" selected>{{ $selectedDepartment }}</option>
+                                    @endif
+                                </select>
                             </div>
                         </div>
-                        <div class="field-row col-3">
-                            <div class="field">
-                                <label class="field-label">Section</label>
-                                <input class="field-input" name="section" value="{{ old('section') }}" placeholder="e.g. Admin">
-                            </div>
+                        <div class="field-row col-2">
                             <div class="field">
                                 <label class="field-label">Date Hired <span class="req">*</span></label>
                                 <input class="field-input" type="date" name="date_hired" value="{{ old('date_hired') }}" required>

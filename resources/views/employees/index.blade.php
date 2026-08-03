@@ -33,7 +33,28 @@
         .btn.danger{ background:#ef4444 }
         .btn-primary{ background:#0b6df0 }
         .action-group{ display:flex; gap:8px; justify-content:flex-end }
+
+        .dept-filters { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; align-items:center }
+        .dept-filters-label { font-size:13px; color:var(--muted); font-weight:600; margin-right:4px }
+        .dept-filter-btn { padding:8px 14px; border-radius:8px; border:1px solid #e6e9ee; background:#f3f4f6; color:#111; font-size:13px; font-weight:600; cursor:pointer; transition:transform .12s ease, box-shadow .12s ease, background .12s ease, color .12s ease, border-color .12s ease }
+        .dept-filter-btn:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(13,30,60,0.06) }
+        .dept-filter-btn.active { background:#0b6df0; color:#fff; border-color:#0b6df0 }
+        .dept-filter-btn.active:hover { opacity:0.95 }
+        @media (max-width:640px) {
+            .dept-filters { gap:6px }
+            .dept-filter-btn { padding:7px 10px; font-size:12px }
+        }
     </style>
+
+    <div class="dept-filters" role="group" aria-label="Filter by department">
+        <span class="dept-filters-label">Department:</span>
+        @foreach (['All', 'Admin', 'Logistics', 'Operations', 'CEDOC', 'Planning'] as $dept)
+            <button type="button"
+                class="dept-filter-btn{{ $dept === 'All' ? ' active' : '' }}"
+                data-department="{{ $dept === 'All' ? '' : $dept }}"
+                aria-pressed="{{ $dept === 'All' ? 'true' : 'false' }}">{{ $dept }}</button>
+        @endforeach
+    </div>
 
     <div class="table-wrap" style="overflow:auto;border-radius:8px;border:1px solid #f3f4f6">
         <table class="emp-table">
@@ -51,7 +72,7 @@
             </thead>
             <tbody>
                 @forelse($employees as $emp)
-                <tr class="emp-row">
+                <tr class="emp-row" data-department="{{ $emp->department }}">
                     <td>{{ $emp->id }}</td>
                     <td>
                         @if($emp->photo_path)
@@ -82,6 +103,9 @@
                 @empty
                 <tr><td colspan="8" style="padding:12px">No employees yet. Click <strong>Add Employee</strong> to create one.</td></tr>
                 @endforelse
+                <tr id="emp-filter-empty" style="display:none">
+                    <td colspan="8" style="padding:16px;text-align:center;color:var(--muted)">No employees found in this department.</td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -91,29 +115,74 @@
     <script>
         document.addEventListener('DOMContentLoaded', function(){
             const input = document.getElementById('employee-search');
-            if(!input) return;
             const rows = Array.from(document.querySelectorAll('.emp-row'));
             const pager = document.querySelector('.pagination');
+            const emptyRow = document.getElementById('emp-filter-empty');
+            const deptButtons = Array.from(document.querySelectorAll('.dept-filter-btn'));
+            let selectedDepartment = '';
             let debounce;
-            function filter(){
-                const q = input.value.trim().toLowerCase();
-                if(!q){
-                    rows.forEach(r=> r.style.display='');
-                    if(pager) pager.style.display = '';
-                    return;
-                }
-                rows.forEach(r=>{
-                    const cells = r.getElementsByTagName('td');
-                    const name = (cells[2] && cells[2].textContent || '').toLowerCase();
-                    const pos = (cells[3] && cells[3].textContent || '').toLowerCase();
-                    const dept = (cells[4] && cells[4].textContent || '').toLowerCase();
-                    const empType = (cells[5] && cells[5].textContent || '').toLowerCase();
-                    const haystack = name + ' ' + pos + ' ' + dept + ' ' + empType;
-                    r.style.display = haystack.indexOf(q) !== -1 ? '' : 'none';
-                });
-                if(pager) pager.style.display = 'none';
+
+            function normalize(value){
+                return (value || '').trim().toLowerCase();
             }
-            input.addEventListener('input', ()=>{ clearTimeout(debounce); debounce = setTimeout(filter, 150); });
+
+            function matchesDepartment(row){
+                if(!selectedDepartment) return true;
+                return normalize(row.dataset.department) === normalize(selectedDepartment);
+            }
+
+            function matchesSearch(row){
+                const q = input ? input.value.trim().toLowerCase() : '';
+                if(!q) return true;
+                const cells = row.getElementsByTagName('td');
+                const name = (cells[2] && cells[2].textContent || '').toLowerCase();
+                const pos = (cells[3] && cells[3].textContent || '').toLowerCase();
+                const dept = (cells[4] && cells[4].textContent || '').toLowerCase();
+                const empType = (cells[5] && cells[5].textContent || '').toLowerCase();
+                const haystack = name + ' ' + pos + ' ' + dept + ' ' + empType;
+                return haystack.indexOf(q) !== -1;
+            }
+
+            function applyFilters(){
+                let visibleCount = 0;
+                rows.forEach(function(row){
+                    const visible = matchesDepartment(row) && matchesSearch(row);
+                    row.style.display = visible ? '' : 'none';
+                    if(visible) visibleCount++;
+                });
+
+                const isFiltering = !!selectedDepartment || (input && input.value.trim());
+                if(emptyRow){
+                    emptyRow.style.display = rows.length > 0 && visibleCount === 0 ? '' : 'none';
+                    if(visibleCount === 0 && selectedDepartment && input && input.value.trim()){
+                        emptyRow.querySelector('td').textContent = 'No employees found in this department matching your search.';
+                    } else if(visibleCount === 0 && selectedDepartment){
+                        emptyRow.querySelector('td').textContent = 'No employees found in this department.';
+                    } else if(visibleCount === 0 && input && input.value.trim()){
+                        emptyRow.querySelector('td').textContent = 'No employees match your search.';
+                    }
+                }
+                if(pager) pager.style.display = isFiltering ? 'none' : '';
+            }
+
+            deptButtons.forEach(function(btn){
+                btn.addEventListener('click', function(){
+                    selectedDepartment = btn.dataset.department || '';
+                    deptButtons.forEach(function(b){
+                        const isActive = b === btn;
+                        b.classList.toggle('active', isActive);
+                        b.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+                    });
+                    applyFilters();
+                });
+            });
+
+            if(input){
+                input.addEventListener('input', function(){
+                    clearTimeout(debounce);
+                    debounce = setTimeout(applyFilters, 150);
+                });
+            }
         });
     </script>
 </div>
