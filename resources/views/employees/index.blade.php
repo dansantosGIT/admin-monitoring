@@ -1,19 +1,343 @@
 @extends('layouts.app')
 
+@section('title', 'Employees')
 @section('page-name', 'Employees')
 
+@push('styles')
+<style>
+    .employee-index {
+        width: 100%;
+        display: grid;
+        gap: 18px;
+    }
+
+    .hero-card,
+    .panel-card,
+    .stat-card {
+        background: #ffffff;
+        border: 1px solid #dde7f2;
+        border-radius: 20px;
+        box-shadow: 0 18px 48px rgba(18, 32, 51, 0.08);
+    }
+
+    .hero-card {
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: flex-start;
+        background: linear-gradient(135deg, #ffffff 0%, #f6f9ff 100%);
+    }
+
+    .eyebrow {
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #0f62fe;
+    }
+
+    .hero-title {
+        font-size: 26px;
+        font-weight: 800;
+        margin: 6px 0 8px;
+    }
+
+    .hero-sub {
+        color: #607086;
+        max-width: 760px;
+        line-height: 1.6;
+        font-size: 14px;
+    }
+
+    .hero-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        padding: 10px 14px;
+        font-weight: 700;
+        font-size: 13px;
+        text-decoration: none;
+        border: 1px solid transparent;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background: #0f62fe;
+        color: #fff;
+    }
+
+    .btn-secondary {
+        background: #fff;
+        border-color: #dce5ef;
+        color: #122033;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .stat-card {
+        padding: 16px;
+    }
+
+    .stat-label {
+        font-size: 12px;
+        color: #607086;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .stat-value {
+        margin-top: 8px;
+        font-size: 28px;
+        font-weight: 800;
+        color: #122033;
+    }
+
+    .stat-note {
+        margin-top: 4px;
+        font-size: 13px;
+        color: #607086;
+    }
+
+    .panel-card {
+        padding: 16px;
+    }
+
+    .panel-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+
+    .panel-title {
+        font-size: 18px;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .panel-sub {
+        margin-top: 4px;
+        font-size: 13px;
+        color: #607086;
+    }
+
+    .toolbar {
+        display: grid;
+        grid-template-columns: 1.5fr auto;
+        gap: 10px;
+        margin-bottom: 14px;
+    }
+
+    .search-box,
+    .filter-select {
+        width: 100%;
+        min-height: 44px;
+        border: 1px solid #dce5ef;
+        border-radius: 12px;
+        padding: 12px 14px;
+        font: inherit;
+        background: #fff;
+        color: #122033;
+    }
+
+    .table-wrap {
+        overflow-x: auto;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 960px;
+    }
+
+    .table th,
+    .table td {
+        padding: 14px 12px;
+        border-bottom: 1px solid #edf2f7;
+        text-align: left;
+        vertical-align: middle;
+        font-size: 13px;
+    }
+
+    .table th {
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 11px;
+        color: #607086;
+        font-weight: 800;
+        background: #f8fbff;
+    }
+
+    .employee-cell {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .employee-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #dbe7ff;
+        color: #1d4ed8;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        flex-shrink: 0;
+    }
+
+    .employee-copy {
+        display: grid;
+        gap: 2px;
+    }
+
+    .employee-name {
+        font-weight: 700;
+    }
+
+    .employee-sub {
+        color: #607086;
+        font-size: 12px;
+    }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .badge--active { background: #dff5e8; color: #166534; }
+    .badge--inactive { background: #fff0c9; color: #854d0e; }
+    .badge--separated { background: #fee2e2; color: #991b1b; }
+
+    .actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .icon-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        border: 1px solid #dce5ef;
+        background: #fff;
+        color: #122033;
+        text-decoration: none;
+    }
+
+    .empty-state {
+        padding: 32px 18px;
+        text-align: center;
+        color: #607086;
+    }
+
+    .pagination-wrap {
+        margin-top: 14px;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+        color: #607086;
+        font-size: 13px;
+    }
+
+    @media (max-width: 1100px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .toolbar {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 720px) {
+        .hero-card {
+            flex-direction: column;
+        }
+
+        .hero-actions {
+            justify-content: flex-start;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
-<div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:12px">
+<div class="employee-index">
+    <section class="hero-card">
         <div>
-            <h2 style="margin:0">Employees</h2>
-            <div style="color:var(--muted);font-size:13px">Manage employee records and Personal Data Sheets</div>
+            <div class="eyebrow">Personnel Records</div>
+            <div class="hero-title">Employees</div>
+            <div class="hero-sub">Manage employee profiles, employment types, and personal records in a clean audit-ready layout.</div>
         </div>
-        <div style="display:flex;gap:8px;align-items:center">
-            <input id="employee-search" type="search" placeholder="Search employees..." aria-label="Search employees" style="padding:10px 12px;border:1px solid #e6e9ee;border-radius:8px;width:320px;background:#fff;color:#111">
-            <a href="{{ route('employees.create') }}" class="btn btn-primary" style="padding:10px 14px;border-radius:10px;font-weight:700">+ Add Employee</a>
+        <div class="hero-actions">
+            <a class="btn btn-secondary" href="{{ route('reports.index') }}">Reports</a>
+            <a class="btn btn-primary" href="{{ route('employees.create') }}">+ Add Employee</a>
         </div>
-    </div>
+    </section>
+
+    <section class="stats-grid">
+        <article class="stat-card">
+            <div class="stat-label">Total</div>
+            <div class="stat-value">{{ $employees->total() }}</div>
+            <div class="stat-note">Registered employees</div>
+        </article>
+        <article class="stat-card">
+            <div class="stat-label">Job Order</div>
+            <div class="stat-value">{{ $employees->where('employment_type', 'JO')->count() }}</div>
+            <div class="stat-note">Temporary workforce</div>
+        </article>
+        <article class="stat-card">
+            <div class="stat-label">Permanent</div>
+            <div class="stat-value">{{ $employees->where('employment_type', 'Permanent')->count() }}</div>
+            <div class="stat-note">Regular staff</div>
+        </article>
+        <article class="stat-card">
+            <div class="stat-label">Active</div>
+            <div class="stat-value">{{ $employees->where('status', 'Active')->count() }}</div>
+            <div class="stat-note">Currently active</div>
+        </article>
+    </section>
+
+    <section class="panel-card">
+        <div class="panel-head">
+            <div>
+                <h2 class="panel-title">Employee Directory</h2>
+                <div class="panel-sub">Search by name, position, department, or employment type.</div>
+            </div>
+        </div>
 
     @if(session('success'))
         <div style="padding:10px;background:#e6ffed;border:1px solid #b7f0c6;border-radius:6px;margin-bottom:12px">{{ session('success') }}</div>
@@ -33,28 +357,7 @@
         .btn.danger{ background:#ef4444 }
         .btn-primary{ background:#0b6df0 }
         .action-group{ display:flex; gap:8px; justify-content:flex-end }
-
-        .dept-filters { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; align-items:center }
-        .dept-filters-label { font-size:13px; color:var(--muted); font-weight:600; margin-right:4px }
-        .dept-filter-btn { padding:8px 14px; border-radius:8px; border:1px solid #e6e9ee; background:#f3f4f6; color:#111; font-size:13px; font-weight:600; cursor:pointer; transition:transform .12s ease, box-shadow .12s ease, background .12s ease, color .12s ease, border-color .12s ease }
-        .dept-filter-btn:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(13,30,60,0.06) }
-        .dept-filter-btn.active { background:#0b6df0; color:#fff; border-color:#0b6df0 }
-        .dept-filter-btn.active:hover { opacity:0.95 }
-        @media (max-width:640px) {
-            .dept-filters { gap:6px }
-            .dept-filter-btn { padding:7px 10px; font-size:12px }
-        }
     </style>
-
-    <div class="dept-filters" role="group" aria-label="Filter by department">
-        <span class="dept-filters-label">Department:</span>
-        @foreach (['All', 'Admin', 'Logistics', 'Operations', 'CEDOC', 'Planning'] as $dept)
-            <button type="button"
-                class="dept-filter-btn{{ $dept === 'All' ? ' active' : '' }}"
-                data-department="{{ $dept === 'All' ? '' : $dept }}"
-                aria-pressed="{{ $dept === 'All' ? 'true' : 'false' }}">{{ $dept }}</button>
-        @endforeach
-    </div>
 
     <div class="table-wrap" style="overflow:auto;border-radius:8px;border:1px solid #f3f4f6">
         <table class="emp-table">
@@ -72,7 +375,7 @@
             </thead>
             <tbody>
                 @forelse($employees as $emp)
-                <tr class="emp-row" data-department="{{ $emp->department }}">
+                <tr class="emp-row">
                     <td>{{ $emp->id }}</td>
                     <td>
                         @if($emp->photo_path)
@@ -103,9 +406,6 @@
                 @empty
                 <tr><td colspan="8" style="padding:12px">No employees yet. Click <strong>Add Employee</strong> to create one.</td></tr>
                 @endforelse
-                <tr id="emp-filter-empty" style="display:none">
-                    <td colspan="8" style="padding:16px;text-align:center;color:var(--muted)">No employees found in this department.</td>
-                </tr>
             </tbody>
         </table>
     </div>
@@ -115,76 +415,46 @@
     <script>
         document.addEventListener('DOMContentLoaded', function(){
             const input = document.getElementById('employee-search');
+            if(!input) return;
             const rows = Array.from(document.querySelectorAll('.emp-row'));
             const pager = document.querySelector('.pagination');
-            const emptyRow = document.getElementById('emp-filter-empty');
-            const deptButtons = Array.from(document.querySelectorAll('.dept-filter-btn'));
-            let selectedDepartment = '';
             let debounce;
-
-            function normalize(value){
-                return (value || '').trim().toLowerCase();
-            }
-
-            function matchesDepartment(row){
-                if(!selectedDepartment) return true;
-                return normalize(row.dataset.department) === normalize(selectedDepartment);
-            }
-
-            function matchesSearch(row){
-                const q = input ? input.value.trim().toLowerCase() : '';
-                if(!q) return true;
-                const cells = row.getElementsByTagName('td');
-                const name = (cells[2] && cells[2].textContent || '').toLowerCase();
-                const pos = (cells[3] && cells[3].textContent || '').toLowerCase();
-                const dept = (cells[4] && cells[4].textContent || '').toLowerCase();
-                const empType = (cells[5] && cells[5].textContent || '').toLowerCase();
-                const haystack = name + ' ' + pos + ' ' + dept + ' ' + empType;
-                return haystack.indexOf(q) !== -1;
-            }
-
-            function applyFilters(){
-                let visibleCount = 0;
-                rows.forEach(function(row){
-                    const visible = matchesDepartment(row) && matchesSearch(row);
-                    row.style.display = visible ? '' : 'none';
-                    if(visible) visibleCount++;
-                });
-
-                const isFiltering = !!selectedDepartment || (input && input.value.trim());
-                if(emptyRow){
-                    emptyRow.style.display = rows.length > 0 && visibleCount === 0 ? '' : 'none';
-                    if(visibleCount === 0 && selectedDepartment && input && input.value.trim()){
-                        emptyRow.querySelector('td').textContent = 'No employees found in this department matching your search.';
-                    } else if(visibleCount === 0 && selectedDepartment){
-                        emptyRow.querySelector('td').textContent = 'No employees found in this department.';
-                    } else if(visibleCount === 0 && input && input.value.trim()){
-                        emptyRow.querySelector('td').textContent = 'No employees match your search.';
-                    }
+            function filter(){
+                const q = input.value.trim().toLowerCase();
+                if(!q){
+                    rows.forEach(r=> r.style.display='');
+                    if(pager) pager.style.display = '';
+                    return;
                 }
-                if(pager) pager.style.display = isFiltering ? 'none' : '';
-            }
-
-            deptButtons.forEach(function(btn){
-                btn.addEventListener('click', function(){
-                    selectedDepartment = btn.dataset.department || '';
-                    deptButtons.forEach(function(b){
-                        const isActive = b === btn;
-                        b.classList.toggle('active', isActive);
-                        b.setAttribute('aria-pressed', isActive ? 'true' : 'false');
-                    });
-                    applyFilters();
+                rows.forEach(r=>{
+                    const cells = r.getElementsByTagName('td');
+                    const name = (cells[2] && cells[2].textContent || '').toLowerCase();
+                    const pos = (cells[3] && cells[3].textContent || '').toLowerCase();
+                    const dept = (cells[4] && cells[4].textContent || '').toLowerCase();
+                    const empType = (cells[5] && cells[5].textContent || '').toLowerCase();
+                    const haystack = name + ' ' + pos + ' ' + dept + ' ' + empType;
+                    r.style.display = haystack.indexOf(q) !== -1 ? '' : 'none';
                 });
-            });
-
-            if(input){
-                input.addEventListener('input', function(){
-                    clearTimeout(debounce);
-                    debounce = setTimeout(applyFilters, 150);
-                });
+                if(pager) pager.style.display = 'none';
             }
+            input.addEventListener('input', ()=>{ clearTimeout(debounce); debounce = setTimeout(filter, 150); });
         });
     </script>
 </div>
-
 @endsection
+
+@push('scripts')
+<script>
+    const employeeSearch = document.getElementById('employee-search');
+    const employeeRows = Array.from(document.querySelectorAll('.employee-row'));
+
+    employeeSearch?.addEventListener('input', () => {
+        const query = employeeSearch.value.trim().toLowerCase();
+
+        employeeRows.forEach((row) => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(query) ? '' : 'none';
+        });
+    });
+</script>
+@endpush

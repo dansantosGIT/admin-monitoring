@@ -351,6 +351,8 @@
     padding: 1.5rem;
     background: #f3f4f6;
     min-height: 100vh;
+    width: 100%;
+    min-width: 0;
 }
 
 /* ── Stats grid ─────────────────────────────────────── */
@@ -419,9 +421,21 @@
     grid-template-columns: 1fr 320px;
     gap: 1.25rem;
     align-items: start;
+    min-width: 0;
 }
 @media (max-width: 1024px) {
     .main-content { grid-template-columns: 1fr; }
+}
+
+.left-col,
+.right-col,
+.card,
+.stat-card,
+.breakdown-list,
+.chart-container,
+.attendance-list,
+.violations-list {
+    min-width: 0;
 }
 
 /* ── Card base ──────────────────────────────────────── */

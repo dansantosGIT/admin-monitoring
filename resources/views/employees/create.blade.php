@@ -6,9 +6,9 @@
 @push('styles')
 <style>
     :root {
-        --red: #C0172B;
-        --red-dark: #8B0F1E;
-        --red-light: #F9E9EB;
+        --red: #0f62fe;
+        --red-dark: #0b4fd8;
+        --red-light: #eaf2ff;
         --white: #ffffff;
         --panel: rgba(255,255,255,0.92);
         --gray-50: #F6F6F6;
@@ -38,7 +38,7 @@
             linear-gradient(180deg, #f5f7fb 0%, #eef3f9 100%);
     }
     .content {
-        padding: 24px 28px 36px;
+        padding: 22px 24px 32px;
         max-width: 1440px;
         width: 100%;
         margin: 0 auto;
@@ -50,7 +50,7 @@
         align-items: flex-start;
         justify-content: space-between;
         gap: 18px;
-        margin-bottom: 24px;
+        margin-bottom: 18px;
         padding: 18px 18px 16px;
         border: 1px solid rgba(192,23,43,0.10);
         border-radius: 18px;
@@ -60,6 +60,7 @@
     .page-header-left { display: flex; align-items: center; gap: 12px; }
     .page-copy { max-width: 760px; }
     .page-badges { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .required-note { margin-top: 10px; font-size: 12px; color: var(--gray-600); }
     .badge-chip {
         display:inline-flex; align-items:center; gap:6px;
         border:1px solid #f1d8dd; border-radius:999px;
@@ -120,7 +121,7 @@
     .form-layout {
         display: grid;
         grid-template-columns: minmax(0, 1fr) 340px;
-        gap: 20px;
+        gap: 18px;
         align-items: start;
     }
 
@@ -130,7 +131,7 @@
         border: 1px solid #edf1f6;
         border-radius: 16px;
         overflow: hidden;
-        margin-bottom: 18px;
+        margin-bottom: 14px;
         box-shadow: 0 14px 28px rgba(15, 23, 42, 0.06);
     }
     .form-section:last-child { margin-bottom: 0; }
@@ -139,7 +140,7 @@
         display: flex;
         align-items: center;
         gap: 10px;
-        padding: 14px 18px;
+        padding: 12px 16px;
         border-bottom: 1px solid #edf1f6;
         background: linear-gradient(135deg, #fff 0%, #fffafc 100%);
     }
@@ -157,12 +158,12 @@
     .section-title { font-size: 13px; font-weight: 700; color: var(--gray-800); }
     .section-sub { font-size: 11px; color: var(--gray-400); margin-top: 1px; }
 
-    .section-body { padding: 18px 20px; }
+    .section-body { padding: 16px 18px; }
 
     /* FIELD GRID */
-    .field-row { display: grid; gap: 12px; margin-bottom: 12px; }
+    .field-row { display: grid; gap: 10px; margin-bottom: 10px; }
     .field-row:last-child { margin-bottom: 0; }
-    .col-3 { grid-template-columns: repeat(3, 1fr); }
+    .col-3 { grid-template-columns: minmax(0, 1.15fr) repeat(2, minmax(0, 1fr)); }
     .col-2 { grid-template-columns: repeat(2, 1fr); }
     .col-1 { grid-template-columns: 1fr; }
     .col-2-1 { grid-template-columns: 2fr 1fr; }
@@ -171,7 +172,7 @@
     /* FIELD */
     .field { display: flex; flex-direction: column; gap: 5px; }
     .field-label {
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 600;
         color: var(--gray-600);
         letter-spacing: 0.03em;
@@ -185,18 +186,18 @@
         width: 100%;
         border: 1px solid #e3e8ef;
         border-radius: 10px;
-        padding: 10px 12px;
-        font-size: 13px;
+        padding: 11px 13px;
+        font-size: 14px;
         font-family: var(--font);
         color: var(--gray-800);
         background: linear-gradient(180deg, #fff 0%, #fbfdff 100%);
         outline: none;
         transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
-        height: 40px;
+        height: 42px;
     }
-    .field-textarea { height: auto; min-height: 90px; resize: vertical; }
+    .field-textarea { height: auto; min-height: 96px; resize: vertical; }
     .field-input::placeholder,
-    .field-textarea::placeholder { color: var(--gray-400); font-size: 13px; }
+    .field-textarea::placeholder { color: var(--gray-400); font-size: 13px; opacity: 1; }
     .field-input:hover,
     .field-select:hover,
     .field-textarea:hover { border-color: #cfd8e5; }
@@ -206,6 +207,20 @@
         border-color: var(--red);
         box-shadow: 0 0 0 4px rgba(192, 23, 43, 0.10);
         transform: translateY(-1px);
+    }
+
+    .field.has-error .field-input,
+    .field.has-error .field-select,
+    .field.has-error .field-textarea {
+        border-color: #ef4444;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.08);
+    }
+
+    .field-error {
+        min-height: 16px;
+        font-size: 12px;
+        line-height: 1.35;
+        color: #dc2626;
     }
 
     /* ERROR BLOCK */
@@ -226,7 +241,7 @@
         border: 1px solid #edf1f6;
         border-radius: 16px;
         overflow: hidden;
-        margin-bottom: 16px;
+        margin-bottom: 12px;
         box-shadow: 0 14px 28px rgba(15, 23, 42, 0.06);
     }
     .sidebar-panel:last-child { margin-bottom: 0; }
@@ -269,7 +284,7 @@
         color: var(--gray-800);
         background: linear-gradient(135deg, #fff 0%, #fffafc 100%);
     }
-    .tips-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+    .tips-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
     .tip-item { display: flex; align-items: flex-start; gap: 8px; }
     .tip-dot {
         width: 6px; height: 6px;
@@ -279,6 +294,27 @@
         margin-top: 5px;
     }
     .tip-text { font-size: 12px; color: var(--gray-600); line-height: 1.5; }
+
+    .notice-banner {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 10px 12px;
+        margin: 10px 0 12px;
+        border-radius: 12px;
+        border: 1px solid #d7e3ef;
+        background: #f4f8fc;
+        color: #44556b;
+        font-size: 12px;
+        line-height: 1.45;
+    }
+    .notice-banner svg {
+        width: 16px;
+        height: 16px;
+        color: #58708c;
+        flex-shrink: 0;
+        margin-top: 1px;
+    }
 
     .form-footer {
         display: flex;
@@ -345,6 +381,7 @@
                     <span class="badge-chip"><strong>PDS</strong> ready</span>
                     <span class="badge-chip"><strong>Modern</strong> dashboard style</span>
                 </div>
+                <div class="required-note">* Required field</div>
             </div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;">
@@ -393,27 +430,32 @@
                     </div>
                     <div class="section-body">
                         <div class="field-row col-3">
-                            <div class="field">
+                            <div class="field @error('last_name') has-error @enderror">
                                 <label class="field-label">Last Name <span class="req">*</span></label>
-                                <input class="field-input" name="last_name" value="{{ old('last_name') }}" placeholder="e.g. Dela Cruz" required>
+                                <input class="field-input" name="last_name" value="{{ old('last_name') }}" placeholder="e.g. Dela Cruz" data-mask="name" maxlength="150" autocomplete="family-name" required>
+                                <div class="field-error">@error('last_name'){{ $message }}@enderror</div>
                             </div>
-                            <div class="field">
+                            <div class="field @error('first_name') has-error @enderror">
                                 <label class="field-label">First Name <span class="req">*</span></label>
-                                <input class="field-input" name="first_name" value="{{ old('first_name') }}" placeholder="e.g. Juan" required>
+                                <input class="field-input" name="first_name" value="{{ old('first_name') }}" placeholder="e.g. Juan" data-mask="name" maxlength="150" autocomplete="given-name" required>
+                                <div class="field-error">@error('first_name'){{ $message }}@enderror</div>
                             </div>
-                            <div class="field">
+                            <div class="field @error('middle_name') has-error @enderror">
                                 <label class="field-label">Middle Name</label>
-                                <input class="field-input" name="middle_name" value="{{ old('middle_name') }}" placeholder="e.g. Santos">
+                                <input class="field-input" name="middle_name" value="{{ old('middle_name') }}" placeholder="e.g. Santos" data-mask="name" maxlength="50" autocomplete="additional-name">
+                                <div class="field-error">@error('middle_name'){{ $message }}@enderror</div>
                             </div>
                         </div>
                         <div class="field-row col-3">
-                            <div class="field">
+                            <div class="field @error('suffix') has-error @enderror">
                                 <label class="field-label">Suffix</label>
-                                <input class="field-input" name="suffix" value="{{ old('suffix') }}" placeholder="Jr., Sr., III">
+                                <input class="field-input" name="suffix" value="{{ old('suffix') }}" placeholder="e.g. Jr., Sr., III" data-mask="name" maxlength="20">
+                                <div class="field-error">@error('suffix'){{ $message }}@enderror</div>
                             </div>
-                            <div class="field">
+                            <div class="field @error('maiden_name') has-error @enderror">
                                 <label class="field-label">Maiden Name</label>
-                                <input class="field-input" name="maiden_name" value="{{ old('maiden_name') }}" placeholder="If applicable">
+                                <input class="field-input" name="maiden_name" value="{{ old('maiden_name') }}" placeholder="e.g. Dela Cruz" data-mask="name" maxlength="150">
+                                <div class="field-error">@error('maiden_name'){{ $message }}@enderror</div>
                             </div>
                             <div class="field">
                                 <label class="field-label">Sex</label>
@@ -425,9 +467,10 @@
                             </div>
                         </div>
                         <div class="field-row col-3">
-                            <div class="field">
+                            <div class="field @error('birthdate') has-error @enderror">
                                 <label class="field-label">Birthdate</label>
-                                <input class="field-input" type="date" name="birthdate" value="{{ old('birthdate') }}">
+                                <input class="field-input" type="date" name="birthdate" value="{{ old('birthdate') }}" max="{{ now()->toDateString() }}" data-mask="birthdate">
+                                <div class="field-error">@error('birthdate'){{ $message }}@enderror</div>
                             </div>
                             <div class="field">
                                 <label class="field-label">Place of Birth</label>
@@ -486,13 +529,15 @@
                             </div>
                         </div>
                         <div class="field-row col-2">
-                            <div class="field">
+                            <div class="field @error('present_zip') has-error @enderror">
                                 <label class="field-label">ZIP Code</label>
-                                <input class="field-input" name="present_zip" data-location="zip" value="{{ old('present_zip') }}" placeholder="0000" inputmode="numeric" pattern="[0-9]{4}">
+                                <input class="field-input" name="present_zip" data-location="zip" data-mask="zip" value="{{ old('present_zip') }}" placeholder="e.g. 1234" inputmode="numeric" maxlength="4" autocomplete="postal-code">
+                                <div class="field-error">@error('present_zip'){{ $message }}@enderror</div>
                             </div>
-                            <div class="field">
+                            <div class="field @error('mobile') has-error @enderror">
                                 <label class="field-label">Mobile Number</label>
-                                <input class="field-input" name="mobile" value="{{ old('mobile') }}" placeholder="09XX XXX XXXX">
+                                <input class="field-input" name="mobile" value="{{ old('mobile') }}" placeholder="e.g. 09XX XXX XXXX" data-mask="mobile" inputmode="numeric" maxlength="13" autocomplete="tel">
+                                <div class="field-error">@error('mobile'){{ $message }}@enderror</div>
                             </div>
                         </div>
                         <div class="field-row col-1">
@@ -516,32 +561,42 @@
                         </div>
                     </div>
                     <div class="section-body">
+                        <div class="notice-banner">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 11v5"/><path d="M12 7h.01"/><circle cx="12" cy="12" r="9"/></svg>
+                            <div>This information is confidential and used for internal HR records only.</div>
+                        </div>
                         <div class="field-row col-3">
-                            <div class="field">
+                            <div class="field @error('sss') has-error @enderror">
                                 <label class="field-label">SSS No.</label>
-                                <input class="field-input" name="sss" value="{{ old('sss') }}" placeholder="XX-XXXXXXX-X">
+                                <input class="field-input" name="sss" value="{{ old('sss') }}" placeholder="e.g. 34-1234567-8" data-mask="sss" inputmode="numeric" maxlength="12" autocomplete="off">
+                                <div class="field-error">@error('sss'){{ $message }}@enderror</div>
                             </div>
-                            <div class="field">
+                            <div class="field @error('tin') has-error @enderror">
                                 <label class="field-label">TIN</label>
-                                <input class="field-input" name="tin" value="{{ old('tin') }}" placeholder="XXX-XXX-XXX">
+                                <input class="field-input" name="tin" value="{{ old('tin') }}" placeholder="e.g. 123-456-789" data-mask="tin" inputmode="numeric" maxlength="11" autocomplete="off">
+                                <div class="field-error">@error('tin'){{ $message }}@enderror</div>
                             </div>
-                            <div class="field">
+                            <div class="field @error('philhealth') has-error @enderror">
                                 <label class="field-label">PhilHealth</label>
-                                <input class="field-input" name="philhealth" value="{{ old('philhealth') }}" placeholder="XX-XXXXXXXXX-X">
+                                <input class="field-input" name="philhealth" value="{{ old('philhealth') }}" placeholder="e.g. 12-345678901-2" data-mask="philhealth" inputmode="numeric" maxlength="14" autocomplete="off">
+                                <div class="field-error">@error('philhealth'){{ $message }}@enderror</div>
                             </div>
                         </div>
                         <div class="field-row col-3">
-                            <div class="field">
+                            <div class="field @error('pagibig') has-error @enderror">
                                 <label class="field-label">Pag-IBIG</label>
-                                <input class="field-input" name="pagibig" value="{{ old('pagibig') }}" placeholder="XXXX-XXXX-XXXX">
+                                <input class="field-input" name="pagibig" value="{{ old('pagibig') }}" placeholder="e.g. 1234-5678-9012" data-mask="pagibig" inputmode="numeric" maxlength="14" autocomplete="off">
+                                <div class="field-error">@error('pagibig'){{ $message }}@enderror</div>
                             </div>
-                            <div class="field">
+                            <div class="field @error('gsis') has-error @enderror">
                                 <label class="field-label">GSIS</label>
-                                <input class="field-input" name="gsis" value="{{ old('gsis') }}" placeholder="GSIS No.">
+                                <input class="field-input" name="gsis" value="{{ old('gsis') }}" placeholder="e.g. 1234567890" data-mask="gsis" inputmode="numeric" maxlength="20" autocomplete="off">
+                                <div class="field-error">@error('gsis'){{ $message }}@enderror</div>
                             </div>
-                            <div class="field">
+                            <div class="field @error('email') has-error @enderror">
                                 <label class="field-label">Email Address</label>
-                                <input class="field-input" type="email" name="email" value="{{ old('email') }}" placeholder="juan@email.com">
+                                <input class="field-input" type="email" name="email" value="{{ old('email') }}" placeholder="e.g. juan@email.com" data-mask="email" inputmode="email" maxlength="200" autocomplete="email">
+                                <div class="field-error">@error('email'){{ $message }}@enderror</div>
                             </div>
                         </div>
                     </div>
@@ -790,6 +845,206 @@
         };
         reader.readAsDataURL(file);
     });
+
+    (function initEmployeeFieldMasks() {
+        const form = document.getElementById('employeeForm');
+        if (!form) return;
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const minBirthdate = new Date(today);
+        minBirthdate.setFullYear(minBirthdate.getFullYear() - 18);
+
+        const fieldConfigs = {
+            first_name: { type: 'name', required: true, message: 'First name may contain letters, spaces, hyphens, and apostrophes only.' },
+            last_name: { type: 'name', required: true, message: 'Last name may contain letters, spaces, hyphens, and apostrophes only.' },
+            middle_name: { type: 'name', required: false, message: 'Middle name may contain letters, spaces, hyphens, and apostrophes only.' },
+            suffix: { type: 'name', required: false, message: 'Suffix may contain letters, spaces, hyphens, and apostrophes only.' },
+            maiden_name: { type: 'name', required: false, message: 'Maiden name may contain letters, spaces, hyphens, and apostrophes only.' },
+            mobile: { type: 'mobile', required: false, message: 'Mobile number must be 11 digits starting with 09.' },
+            sss: { type: 'sss', required: false, message: 'SSS number must follow the format XX-XXXXXXX-X.' },
+            tin: { type: 'tin', required: false, message: 'TIN must follow the format XXX-XXX-XXX.' },
+            philhealth: { type: 'philhealth', required: false, message: 'PhilHealth number must follow the format XX-XXXXXXXXX-X.' },
+            pagibig: { type: 'pagibig', required: false, message: 'Pag-IBIG number must follow the format XXXX-XXXX-XXXX.' },
+            gsis: { type: 'gsis', required: false, message: 'GSIS number may contain digits and hyphens only.' },
+            email: { type: 'email', required: false, message: 'Please enter a valid email address.' },
+            present_zip: { type: 'zip', required: false, message: 'ZIP code must be 4 digits.' },
+            birthdate: { type: 'birthdate', required: false, message: 'Birthdate must be at least 18 years ago and cannot be in the future.' },
+        };
+
+        const inputs = Object.entries(fieldConfigs)
+            .map(([name, config]) => ({ input: form.querySelector(`[name="${name}"]`), config }))
+            .filter(({ input }) => Boolean(input));
+
+        const stripDigits = (value) => String(value || '').replace(/\D+/g, '');
+        const stripName = (value) => String(value || '')
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^\pL\s'-]+/gu, '')
+            .replace(/\s+/g, ' ')
+            .trimStart();
+        const stripGsis = (value) => String(value || '').replace(/[^\d-]+/g, '').replace(/-+/g, '-');
+
+        const formatGrouped = (digits, groups) => {
+            let cursor = 0;
+            const parts = [];
+
+            for (const size of groups) {
+                const chunk = digits.slice(cursor, cursor + size);
+                if (!chunk) break;
+                parts.push(chunk);
+                cursor += size;
+            }
+
+            return parts.join('-');
+        };
+
+        const formatMobile = (value) => {
+            const digits = stripDigits(value).slice(0, 11);
+            const parts = [digits.slice(0, 4), digits.slice(4, 7), digits.slice(7, 11)].filter(Boolean);
+            return parts.join(' ');
+        };
+
+        const formatSss = (value) => formatGrouped(stripDigits(value).slice(0, 10), [2, 7, 1]);
+        const formatTin = (value) => formatGrouped(stripDigits(value).slice(0, 9), [3, 3, 3]);
+        const formatPhilhealth = (value) => formatGrouped(stripDigits(value).slice(0, 12), [2, 9, 1]);
+        const formatPagibig = (value) => formatGrouped(stripDigits(value).slice(0, 12), [4, 4, 4]);
+        const formatZip = (value) => stripDigits(value).slice(0, 4);
+        const formatName = (value) => stripName(value).slice(0, 150);
+        const formatEmail = (value) => String(value || '').trim();
+        const formatBirthdate = (value) => String(value || '').trim();
+
+        const getField = (input) => input.closest('.field');
+        const getError = (input) => getField(input)?.querySelector('.field-error');
+
+        const setError = (input, message) => {
+            const field = getField(input);
+            const error = getError(input);
+            if (!field || !error) return;
+
+            field.classList.toggle('has-error', Boolean(message));
+            error.textContent = message || '';
+            input.setAttribute('aria-invalid', message ? 'true' : 'false');
+        };
+
+        const validateValue = (input, config) => {
+            const value = String(input.value || '');
+            if (!value) {
+                return config.required ? `${input.previousElementSibling?.textContent?.replace(/\s*\*\s*/, '').trim() || 'This field'} is required.` : '';
+            }
+
+            switch (config.type) {
+                case 'name':
+                    return /^[\pL\s'-]+$/u.test(value)
+                        ? ''
+                        : config.message;
+                case 'mobile':
+                    return /^09\d{9}$/.test(stripDigits(value)) ? '' : config.message;
+                case 'sss':
+                    return /^\d{2}-\d{7}-\d$/.test(value) ? '' : config.message;
+                case 'tin':
+                    return /^\d{3}-\d{3}-\d{3}$/.test(value) ? '' : config.message;
+                case 'philhealth':
+                    return /^\d{2}-\d{9}-\d$/.test(value) ? '' : config.message;
+                case 'pagibig':
+                    return /^\d{4}-\d{4}-\d{4}$/.test(value) ? '' : config.message;
+                case 'gsis':
+                    return /^(?=.*\d)[\d-]+$/.test(value) ? '' : config.message;
+                case 'email':
+                    return input.checkValidity() ? '' : config.message;
+                case 'zip':
+                    return /^\d{4}$/.test(value) ? '' : config.message;
+                case 'birthdate': {
+                    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+                        return config.message;
+                    }
+
+                    const [year, month, day] = value.split('-').map(Number);
+                    const birthdate = new Date(year, month - 1, day);
+                    birthdate.setHours(0, 0, 0, 0);
+
+                    return birthdate <= minBirthdate ? '' : config.message;
+                }
+                default:
+                    return '';
+            }
+        };
+
+        const applyFormat = (input, config) => {
+            switch (config.type) {
+                case 'name':
+                    input.value = formatName(input.value);
+                    break;
+                case 'mobile':
+                    input.value = formatMobile(input.value);
+                    break;
+                case 'sss':
+                    input.value = formatSss(input.value);
+                    break;
+                case 'tin':
+                    input.value = formatTin(input.value);
+                    break;
+                case 'philhealth':
+                    input.value = formatPhilhealth(input.value);
+                    break;
+                case 'pagibig':
+                    input.value = formatPagibig(input.value);
+                    break;
+                case 'gsis':
+                    input.value = stripGsis(input.value);
+                    break;
+                case 'zip':
+                    input.value = formatZip(input.value);
+                    break;
+                case 'email':
+                    input.value = formatEmail(input.value);
+                    break;
+                case 'birthdate':
+                    input.value = formatBirthdate(input.value);
+                    break;
+            }
+        };
+
+        inputs.forEach(({ input, config }) => {
+            applyFormat(input, config);
+
+            const existingMessage = getError(input)?.textContent?.trim();
+            if (existingMessage) {
+                input.closest('.field')?.classList.add('has-error');
+                input.setAttribute('aria-invalid', 'true');
+            }
+
+            const runValidation = () => {
+                applyFormat(input, config);
+                const message = validateValue(input, config);
+                input.dataset.touched = 'true';
+                setError(input, message);
+            };
+
+            input.addEventListener('input', runValidation);
+            input.addEventListener('blur', runValidation);
+        });
+
+        form.addEventListener('submit', (event) => {
+            let firstInvalid = null;
+
+            inputs.forEach(({ input, config }) => {
+                applyFormat(input, config);
+                const message = validateValue(input, config);
+                setError(input, message);
+
+                if (message && !firstInvalid) {
+                    firstInvalid = input;
+                }
+            });
+
+            if (firstInvalid) {
+                event.preventDefault();
+                firstInvalid.focus({ preventScroll: true });
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    })();
 
     (function initPhilippineLocationCascades() {
         const API_BASE = 'https://psgc.cloud/api/v2';

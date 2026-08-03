@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\EmployeeRequest;
 use App\Models\Employee;
 use Illuminate\Support\Facades\Storage;
 
@@ -19,7 +19,7 @@ class EmployeeController extends Controller
         return view('employees.create');
     }
 
-    public function store(Request $request)
+    public function store(EmployeeRequest $request)
     {
         $data = $request->validate([
             'first_name' => 'required|string|max:150',
@@ -34,7 +34,8 @@ class EmployeeController extends Controller
             'mobile' => 'nullable|string|max:50',
             'email' => 'nullable|email|max:200',
             'position' => 'nullable|string|max:200',
-            'department' => 'nullable|string|in:Admin,Logistics,Operations,CEDOC,Planning',
+            'department' => 'nullable|string|max:200',
+            'section' => 'nullable|string|max:200',
             'employment_type' => 'nullable|in:JO,Permanent',
             'date_hired' => 'nullable|date',
             'monthly_salary' => 'nullable|numeric',
@@ -103,7 +104,7 @@ class EmployeeController extends Controller
         return view('employees.edit', compact('employee'));
     }
 
-    public function update(Request $request, Employee $employee)
+    public function update(EmployeeRequest $request, Employee $employee)
     {
         $data = $request->validate([
             'first_name' => 'required|string|max:150',
@@ -118,7 +119,8 @@ class EmployeeController extends Controller
             'mobile' => 'nullable|string|max:50',
             'email' => 'nullable|email|max:200',
             'position' => 'nullable|string|max:200',
-            'department' => 'nullable|string|in:Admin,Logistics,Operations,CEDOC,Planning',
+            'department' => 'nullable|string|max:200',
+            'section' => 'nullable|string|max:200',
             'employment_type' => 'nullable|in:JO,Permanent',
             'date_hired' => 'nullable|date',
             'monthly_salary' => 'nullable|numeric',
