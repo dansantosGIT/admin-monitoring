@@ -48,7 +48,7 @@
     </head>
     <body>
         <h1>{{ $report->incident_code }}</h1>
-        <p class="subhead">Incident Report Export</p>
+        <p class="subhead">Report Export</p>
 
         <table>
             <tr><td class="label">Date of Incident</td><td>{{ optional($report->date_of_incident)->format('M d, Y') }}</td></tr>

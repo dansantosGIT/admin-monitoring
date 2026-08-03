@@ -5,7 +5,6 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AttendanceController;
-use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\AccountController;
 
 // Welcome Landing Page — redirect to login
@@ -35,7 +34,10 @@ Route::middleware('auth')->group(function () {
     // Resource routes for sidebar pages
     Route::resource('employees', EmployeeController::class);
     Route::resource('attendance', AttendanceController::class);
-    Route::resource('incidents', IncidentController::class);
+
+    // Legacy incidents URL — redirect to reports
+    Route::redirect('/incidents', '/reports');
+    Route::redirect('/incidents/{any}', '/reports')->where('any', '.*');
 
     // Account approvals (super-admin)
     Route::get('/accounts', [AccountController::class, 'index'])->name('accounts.index');

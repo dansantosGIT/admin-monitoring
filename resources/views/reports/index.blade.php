@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Incident Reports')
-@section('page-name', 'Incident Reports')
+@section('title', 'Reports')
+@section('page-name', 'Reports')
 
 @push('styles')
 <style>
@@ -473,12 +473,12 @@
 <div class="incident-index">
     <section class="hero-card">
         <div>
-            <div class="eyebrow">Incident Management</div>
-            <div class="hero-title">Incident Reports</div>
+            <div class="eyebrow">Report Management</div>
+            <div class="hero-title">Reports</div>
             <div class="hero-sub">Track property, equipment, and vehicle incidents with filters, review states, and attachment-ready case records.</div>
         </div>
         <div class="hero-actions">
-            <a class="btn btn-secondary" href="{{ route('reports.index') }}">Reports Home</a>
+            <a class="btn btn-secondary" href="{{ route('dashboard') }}">Dashboard</a>
             <a class="btn btn-primary" href="{{ route('reports.create') }}">+ New Report</a>
         </div>
     </section>
@@ -487,7 +487,7 @@
         <article class="stat-card">
             <div class="stat-label">Total</div>
             <div class="stat-value">{{ $reports->total() }}</div>
-            <div class="stat-note">All incident reports</div>
+            <div class="stat-note">All reports</div>
         </article>
         <article class="stat-card">
             <div class="stat-label">Pending</div>
@@ -509,7 +509,7 @@
     <section class="panel-card">
         <div class="panel-head">
             <div>
-                <h2 class="panel-title">Incident Log</h2>
+                <h2 class="panel-title">Report Log</h2>
                 <div class="panel-sub">Filter by status, severity, incident type, or search by code, employee, or location.</div>
             </div>
         </div>
@@ -578,7 +578,7 @@
                         <tr>
                             <td colspan="8">
                                 <div class="empty-state">
-                                    No incident reports found. Create the first report to start tracking incidents.
+                                    No reports found. Create the first report to get started.
                                 </div>
                             </td>
                         </tr>
@@ -598,7 +598,7 @@
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="reportModalTitle">
         <div class="modal-head">
             <div>
-                <h2 class="modal-title" id="reportModalTitle">Incident Report</h2>
+                <h2 class="modal-title" id="reportModalTitle">Report</h2>
                 <div class="modal-sub" id="reportModalSub">Loading report details...</div>
             </div>
             <button type="button" class="modal-close-x" id="reportModalClose" aria-label="Close modal">✕</button>
@@ -690,7 +690,7 @@
         }
 
         async function loadReport(url, editUrl) {
-            modalTitle.textContent = 'Incident Report';
+            modalTitle.textContent = 'Report';
             modalSub.textContent = 'Loading report details...';
             modalBody.innerHTML = '<div class="modal-empty">Loading details...</div>';
             modalEdit.href = editUrl;
@@ -704,7 +704,7 @@
 
                 const html = await response.text();
                 const doc = new DOMParser().parseFromString(html, 'text/html');
-                const title = doc.querySelector('.title')?.textContent?.trim() || 'Incident Report';
+                const title = doc.querySelector('.title')?.textContent?.trim() || 'Report';
                 const subtitle = doc.querySelector('.subtitle')?.textContent?.trim() || '';
                 const fieldMap = new Map();
 

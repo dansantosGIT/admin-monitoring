@@ -259,7 +259,7 @@
         </div>
         <div class="hero-actions">
             <a class="btn btn-secondary" href="{{ route('employees.index') }}">Employees</a>
-            <a class="btn btn-primary" href="{{ route('reports.index') }}">Incident Reports</a>
+            <a class="btn btn-primary" href="{{ route('reports.index') }}">Reports</a>
         </div>
     </section>
 

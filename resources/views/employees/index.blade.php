@@ -303,7 +303,7 @@
             <div class="hero-sub">Manage employee profiles, employment types, and personal records in a clean audit-ready layout.</div>
         </div>
         <div class="hero-actions">
-            <a class="btn btn-secondary" href="{{ route('reports.index') }}">Incident Reports</a>
+            <a class="btn btn-secondary" href="{{ route('reports.index') }}">Reports</a>
             <a class="btn btn-primary" href="{{ route('employees.create') }}">+ Add Employee</a>
         </div>
     </section>

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Create Incident Report')
-@section('page-name', 'Create Incident Report')
+@section('title', 'Create Report')
+@section('page-name', 'Create Report')
 
 @push('styles')
 <style>
@@ -143,7 +143,7 @@
     <div class="panel-card">
         <div class="panel-head">
             <div>
-                <h1 class="panel-title">Create Incident Report</h1>
+                <h1 class="panel-title">Create Report</h1>
                 <div class="panel-sub">Record a new incident with attachments, action notes, and the employee involved.</div>
                 <div class="ui-required-note">* Required field</div>
             </div>
@@ -271,7 +271,7 @@
 
             <div class="actions" style="margin-top:16px;">
                 <a class="btn btn-secondary" href="{{ route('reports.index') }}">Cancel</a>
-                <button class="btn btn-primary" type="submit">Save Incident Report</button>
+                <button class="btn btn-primary" type="submit">Save Report</button>
             </div>
         </form>
     </div>

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Incident Report')
-@section('page-name', 'Edit Incident Report')
+@section('title', 'Edit Report')
+@section('page-name', 'Edit Report')
 
 @push('styles')
 <style>
@@ -150,7 +150,7 @@
     <div class="panel-card">
         <div class="panel-head">
             <div>
-                <h1 class="panel-title">Edit Incident Report</h1>
+                <h1 class="panel-title">Edit Report</h1>
                 <div class="panel-sub">Update incident details, review status, or append new attachments.</div>
                 <div class="ui-required-note">* Required field</div>
             </div>
@@ -296,7 +296,7 @@
 
             <div class="actions" style="margin-top:16px;">
                 <a class="btn btn-secondary" href="{{ route('reports.show', $report) }}">Cancel</a>
-                <button class="btn btn-primary" type="submit">Update Incident Report</button>
+                <button class="btn btn-primary" type="submit">Update Report</button>
             </div>
         </form>
     </div>
