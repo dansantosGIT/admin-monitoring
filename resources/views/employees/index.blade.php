@@ -136,15 +136,21 @@
         color: #607086;
     }
 
-    .toolbar {
+    .filter-toolbar {
         display: grid;
-        grid-template-columns: 1.5fr auto;
-        gap: 10px;
-        margin-bottom: 14px;
+        gap: 12px;
+        margin: 14px 0 16px;
     }
 
-    .search-box,
-    .filter-select {
+    .directory-actions-wrap {
+        overflow: hidden;
+        border-radius: 8px;
+        border: 1px solid #f3f4f6;
+        background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+        padding: 12px;
+    }
+
+    .search-box {
         width: 100%;
         min-height: 44px;
         border: 1px solid #dce5ef;
@@ -153,6 +159,31 @@
         font: inherit;
         background: #fff;
         color: #122033;
+    }
+
+    .department-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .department-filter-btn {
+        border-radius: 999px;
+        padding: 10px 14px;
+        font-size: 13px;
+        font-weight: 700;
+        transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.12s ease;
+    }
+
+    .department-filter-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .department-filter-btn.is-active {
+        background: #0f62fe;
+        border-color: #0f62fe;
+        color: #fff;
+        box-shadow: 0 10px 24px rgba(15, 98, 254, 0.18);
     }
 
     .table-wrap {
@@ -238,6 +269,36 @@
         flex-wrap: wrap;
     }
 
+    .action-group {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        min-width: 0;
+    }
+
+    .action-group .btn {
+        padding: 8px 12px;
+        border-radius: 10px;
+        min-height: 36px;
+        white-space: nowrap;
+        flex: 0 0 auto;
+    }
+
+    .action-group form {
+        margin: 0;
+    }
+
+    .action-group .btn.danger {
+        background: #ef4444;
+    }
+
+    .action-group .btn.secondary {
+        background: #f3f4f6;
+        color: #111827;
+        border: 1px solid #e6e9ee;
+    }
+
     .icon-btn {
         display: inline-flex;
         align-items: center;
@@ -268,13 +329,74 @@
         font-size: 13px;
     }
 
+    .directory-empty-row td {
+        padding: 28px 18px;
+        text-align: center;
+        color: #607086;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .emp-table {
+        width: 100%;
+        min-width: 980px;
+        border-collapse: collapse;
+        background: transparent;
+        table-layout: fixed;
+    }
+
+    .emp-table th,
+    .emp-table td {
+        padding: 14px 12px;
+        border-bottom: 1px solid #edf2f7;
+        vertical-align: middle;
+        font-size: 13px;
+        overflow-wrap: anywhere;
+    }
+
+    .emp-table thead th {
+        background: #f8fbff;
+        color: #607086;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 11px;
+    }
+
+    .emp-row:hover {
+        background: #fbfdff;
+    }
+
+    .emp-photo {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 1px solid #eee;
+        flex-shrink: 0;
+    }
+
+    .emp-name-cell {
+        min-width: 0;
+    }
+
+    .emp-name-cell .employee-cell {
+        min-width: 0;
+    }
+
+    .emp-name-cell .employee-copy {
+        min-width: 0;
+    }
+
     @media (max-width: 1100px) {
         .stats-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
-        .toolbar {
-            grid-template-columns: 1fr;
+        .filter-toolbar {
+            gap: 10px;
         }
     }
 
@@ -289,6 +411,26 @@
 
         .stats-grid {
             grid-template-columns: 1fr;
+        }
+
+        .department-filters {
+            gap: 8px;
+        }
+
+        .department-filter-btn {
+            width: 100%;
+        }
+
+        .directory-actions-wrap {
+            padding: 10px;
+        }
+
+        .action-group {
+            justify-content: flex-start;
+        }
+
+        .action-group .btn {
+            width: 100%;
         }
     }
 </style>
@@ -335,7 +477,7 @@
         <div class="panel-head">
             <div>
                 <h2 class="panel-title">Employee Directory</h2>
-                <div class="panel-sub">Search by name, position, department, or employment type.</div>
+                <div class="panel-sub">Search by name, position, department, or employment type, then narrow the list by department.</div>
             </div>
         </div>
 
@@ -343,23 +485,37 @@
         <div style="padding:10px;background:#e6ffed;border:1px solid #b7f0c6;border-radius:6px;margin-bottom:12px">{{ session('success') }}</div>
     @endif
 
-    <style>
-        .table-wrap{ background:linear-gradient(180deg,#ffffff 0%, #fbfdff 100%); padding:12px }
-        .emp-table { width:100%; border-collapse:collapse; background:transparent }
-        .emp-table thead th { background:#f8fafc; color:var(--muted); font-weight:700; padding:12px; text-align:left; border-bottom:1px solid #eef2f6 }
-        .emp-table td { padding:12px; border-bottom:1px solid #f3f6f9; vertical-align:middle }
-        .emp-row:hover { background:#fbfdff }
-        .emp-photo { width:40px;height:40px;border-radius:50%;object-fit:cover;border:1px solid #eee }
+    @php
+        $departments = ['All', 'Admin', 'Logistics', 'Operations', 'CEDOC', 'Planning'];
+    @endphp
 
-        .btn { display:inline-flex;align-items:center;justify-content:center;padding:8px 10px;border-radius:8px;border:none;background:#374151;color:white;text-decoration:none; cursor:pointer; transition:transform .12s ease,box-shadow .12s ease,opacity .12s ease }
-        .btn:hover{ transform:translateY(-3px); box-shadow:0 10px 30px rgba(13,30,60,0.08); opacity:0.98 }
-        .btn.secondary{ background:#f3f4f6; color:#111; border:1px solid #e6e9ee }
-        .btn.danger{ background:#ef4444 }
-        .btn-primary{ background:#0b6df0 }
-        .action-group{ display:flex; gap:8px; justify-content:flex-end }
-    </style>
+    <div class="filter-toolbar">
+        <div>
+            <input
+                id="employee-search"
+                type="search"
+                class="search-box"
+                placeholder="Search employees by name, position, or department"
+                aria-label="Search employees"
+            >
+        </div>
 
-    <div class="table-wrap" style="overflow:auto;border-radius:8px;border:1px solid #f3f4f6">
+        <div class="department-filters" role="tablist" aria-label="Department filters">
+            @foreach($departments as $department)
+                <button
+                    type="button"
+                    class="btn btn-secondary department-filter-btn {{ $loop->first ? 'is-active' : '' }}"
+                    data-department-filter="{{ strtolower($department) }}"
+                    aria-pressed="{{ $loop->first ? 'true' : 'false' }}"
+                >
+                    {{ $department }}
+                </button>
+            @endforeach
+        </div>
+    </div>
+
+    <div class="directory-actions-wrap">
+        <div class="table-responsive">
         <table class="emp-table">
             <thead>
                 <tr>
@@ -374,87 +530,152 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($employees as $emp)
-                <tr class="emp-row">
-                    <td>{{ $emp->id }}</td>
-                    <td>
-                        @if($emp->photo_path)
-                            <img src="{{ asset('storage/'.$emp->photo_path) }}" class="emp-photo" alt="photo">
-                        @else
-                            <div class="emp-photo" style="display:inline-flex;align-items:center;justify-content:center;background:#f3f4f6;color:var(--muted)">
-                                {{ strtoupper(substr($emp->first_name,0,1).substr($emp->last_name,0,1)) }}
+                @if($employees->count())
+                    @foreach($employees as $emp)
+                    <tr
+                        class="emp-row employee-row"
+                        data-employee-row
+                        data-department="{{ strtolower(trim($emp->department ?? '')) }}"
+                        data-search="{{ strtolower(trim($emp->last_name.' '.$emp->first_name.' '.$emp->middle_name.' '.$emp->position.' '.$emp->department.' '.($emp->employment_type == 'JO' ? 'Job Order' : $emp->employment_type))) }}"
+                    >
+                        <td>{{ $emp->id }}</td>
+                        <td>
+                            @if($emp->photo_path)
+                                <img src="{{ asset('storage/'.$emp->photo_path) }}" class="emp-photo" alt="photo">
+                            @else
+                                <div class="emp-photo" style="display:inline-flex;align-items:center;justify-content:center;background:#f3f4f6;color:var(--muted)">
+                                    {{ strtoupper(substr($emp->first_name,0,1).substr($emp->last_name,0,1)) }}
+                                </div>
+                            @endif
+                        </td>
+                        <td class="emp-name-cell">{{ $emp->last_name }}, {{ $emp->first_name }} {{ $emp->middle_name }}</td>
+                        <td>{{ $emp->position }}</td>
+                        <td>{{ $emp->department }}</td>
+                        <td>{{ $emp->employment_type == 'JO' ? 'Job Order' : $emp->employment_type }}</td>
+                        <td style="text-align:right">{{ optional($emp->date_hired)->format('F j, Y') }}</td>
+                        <td>
+                            <div class="action-group">
+                                <a href="{{ route('employees.show', $emp) }}" class="btn secondary">View</a>
+                                <a href="{{ route('employees.edit', $emp) }}" class="btn">Edit</a>
+                                <form method="POST" action="{{ route('employees.destroy', $emp) }}" style="display:inline-block" onsubmit="return confirm('Delete this employee?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn danger">Delete</button>
+                                </form>
                             </div>
-                        @endif
-                    </td>
-                    <td>{{ $emp->last_name }}, {{ $emp->first_name }} {{ $emp->middle_name }}</td>
-                    <td>{{ $emp->position }}</td>
-                    <td>{{ $emp->department }}</td>
-                    <td>{{ $emp->employment_type == 'JO' ? 'Job Order' : $emp->employment_type }}</td>
-                    <td style="text-align:right">{{ optional($emp->date_hired)->format('F j, Y') }}</td>
-                    <td>
-                        <div class="action-group">
-                            <a href="{{ route('employees.show', $emp) }}" class="btn secondary">View</a>
-                            <a href="{{ route('employees.edit', $emp) }}" class="btn">Edit</a>
-                            <form method="POST" action="{{ route('employees.destroy', $emp) }}" style="display:inline-block" onsubmit="return confirm('Delete this employee?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn danger">Delete</button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-                @empty
+                        </td>
+                    </tr>
+                    @endforeach
+                    <tr id="employee-empty-state" class="directory-empty-row" hidden>
+                        <td colspan="8">
+                            <strong>No employees found in this department.</strong>
+                            <div style="margin-top:4px">Try a different department filter or clear the search.</div>
+                        </td>
+                    </tr>
+                @else
                 <tr><td colspan="8" style="padding:12px">No employees yet. Click <strong>Add Employee</strong> to create one.</td></tr>
-                @endforelse
+                @endif
             </tbody>
         </table>
+        </div>
     </div>
 
-    <div style="margin-top:12px">{{ $employees->links() }}</div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function(){
-            const input = document.getElementById('employee-search');
-            if(!input) return;
-            const rows = Array.from(document.querySelectorAll('.emp-row'));
-            const pager = document.querySelector('.pagination');
-            let debounce;
-            function filter(){
-                const q = input.value.trim().toLowerCase();
-                if(!q){
-                    rows.forEach(r=> r.style.display='');
-                    if(pager) pager.style.display = '';
-                    return;
-                }
-                rows.forEach(r=>{
-                    const cells = r.getElementsByTagName('td');
-                    const name = (cells[2] && cells[2].textContent || '').toLowerCase();
-                    const pos = (cells[3] && cells[3].textContent || '').toLowerCase();
-                    const dept = (cells[4] && cells[4].textContent || '').toLowerCase();
-                    const empType = (cells[5] && cells[5].textContent || '').toLowerCase();
-                    const haystack = name + ' ' + pos + ' ' + dept + ' ' + empType;
-                    r.style.display = haystack.indexOf(q) !== -1 ? '' : 'none';
-                });
-                if(pager) pager.style.display = 'none';
-            }
-            input.addEventListener('input', ()=>{ clearTimeout(debounce); debounce = setTimeout(filter, 150); });
-        });
-    </script>
+    <div class="pagination-wrap" style="margin-top:12px">{{ $employees->links() }}</div>
 </div>
 @endsection
 
 @push('scripts')
 <script>
-    const employeeSearch = document.getElementById('employee-search');
-    const employeeRows = Array.from(document.querySelectorAll('.employee-row'));
+    document.addEventListener('DOMContentLoaded', () => {
+        const searchInput = document.getElementById('employee-search');
+        const filterButtons = Array.from(document.querySelectorAll('[data-department-filter]'));
+        const rows = Array.from(document.querySelectorAll('[data-employee-row]'));
+        const emptyState = document.getElementById('employee-empty-state');
+        const pagination = document.querySelector('.pagination-wrap');
 
-    employeeSearch?.addEventListener('input', () => {
-        const query = employeeSearch.value.trim().toLowerCase();
+        if (!searchInput || !filterButtons.length || !rows.length) {
+            return;
+        }
 
-        employeeRows.forEach((row) => {
-            const text = row.textContent.toLowerCase();
-            row.style.display = text.includes(query) ? '' : 'none';
+        let activeDepartment = 'all';
+
+        const normalize = (value) => value.toString().trim().toLowerCase().replace(/\s+/g, ' ');
+
+        const syncButtons = () => {
+            filterButtons.forEach((button) => {
+                const isActive = button.dataset.departmentFilter === activeDepartment;
+                button.classList.toggle('is-active', isActive);
+                button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            });
+        };
+
+        const updateEmptyState = (visibleCount, hasSearchTerm) => {
+            if (!emptyState) {
+                return;
+            }
+
+            if (visibleCount > 0) {
+                emptyState.hidden = true;
+                return;
+            }
+
+            emptyState.hidden = false;
+
+            const title = emptyState.querySelector('strong');
+            const detail = emptyState.querySelector('div');
+
+            if (title) {
+                title.textContent = activeDepartment === 'all' && hasSearchTerm
+                    ? 'No employees match your search.'
+                    : activeDepartment === 'all'
+                        ? 'No employees available.'
+                        : 'No employees found in this department.';
+            }
+
+            if (detail) {
+                detail.textContent = activeDepartment === 'all' && hasSearchTerm
+                    ? 'Try a different keyword or clear the search.'
+                    : 'Try a different department filter or clear the search.';
+            }
+        };
+
+        const applyFilters = () => {
+            const searchQuery = normalize(searchInput.value);
+            let visibleCount = 0;
+
+            rows.forEach((row) => {
+                const rowDepartment = normalize(row.dataset.department || '');
+                const rowSearchText = normalize(row.dataset.search || row.textContent || '');
+                const matchesDepartment = activeDepartment === 'all' || rowDepartment === activeDepartment;
+                const matchesSearch = !searchQuery || rowSearchText.includes(searchQuery);
+                const isVisible = matchesDepartment && matchesSearch;
+
+                row.hidden = !isVisible;
+
+                if (isVisible) {
+                    visibleCount += 1;
+                }
+            });
+
+            if (pagination) {
+                pagination.hidden = searchQuery.length > 0 || activeDepartment !== 'all';
+            }
+
+            updateEmptyState(visibleCount, searchQuery.length > 0);
+        };
+
+        filterButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                activeDepartment = button.dataset.departmentFilter || 'all';
+                syncButtons();
+                applyFilters();
+            });
         });
+
+        searchInput.addEventListener('input', applyFilters);
+
+        syncButtons();
+        applyFilters();
     });
 </script>
 @endpush
