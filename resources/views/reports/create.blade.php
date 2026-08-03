@@ -145,6 +145,7 @@
             <div>
                 <h1 class="panel-title">Create Incident Report</h1>
                 <div class="panel-sub">Record a new incident with attachments, action notes, and the employee involved.</div>
+                <div class="ui-required-note">* Required field</div>
             </div>
             <a class="btn btn-secondary" href="{{ route('reports.index') }}">Back</a>
         </div>
@@ -157,11 +158,11 @@
                     <h2 class="section-title">Incident Info</h2>
                     <div class="grid-2">
                         <div class="field">
-                            <label for="date_of_incident">Date of Incident</label>
+                            <label for="date_of_incident">Date of Incident <span class="ui-required">*</span></label>
                             <input class="input" id="date_of_incident" name="date_of_incident" type="date" value="{{ old('date_of_incident') }}" required>
                         </div>
                         <div class="field">
-                            <label for="incident_type">Incident Type</label>
+                            <label for="incident_type">Incident Type <span class="ui-required">*</span></label>
                             <select class="select" id="incident_type" name="incident_type" required>
                                 <option value="">Select type</option>
                                 @foreach ($incidentTypes as $value => $label)
@@ -170,7 +171,7 @@
                             </select>
                         </div>
                         <div class="field">
-                            <label for="severity">Severity</label>
+                            <label for="severity">Severity <span class="ui-required">*</span></label>
                             <select class="select" id="severity" name="severity" required>
                                 <option value="">Select severity</option>
                                 @foreach ($severityLevels as $value => $label)
@@ -179,7 +180,7 @@
                             </select>
                         </div>
                         <div class="field">
-                            <label for="status">Status</label>
+                            <label for="status">Status <span class="ui-required">*</span></label>
                             <select class="select" id="status" name="status" required>
                                 @foreach ($statusOptions as $value => $label)
                                     <option value="{{ $value }}" @selected(old('status', 'pending') === $value)>{{ $label }}</option>
@@ -193,7 +194,7 @@
                     <h2 class="section-title">Employee & Location</h2>
                     <div class="grid-2">
                         <div class="field">
-                            <label for="employee_id">Employee</label>
+                            <label for="employee_id">Employee <span class="ui-required">*</span></label>
                             <select class="select" id="employee_id" name="employee_id" required>
                                 <option value="">Select employee</option>
                                 @foreach ($employees as $employee)
@@ -202,7 +203,7 @@
                             </select>
                         </div>
                         <div class="field">
-                            <label for="department">Department</label>
+                            <label for="department">Department <span class="ui-required">*</span></label>
                             <input class="input" id="department" name="department" type="text" value="{{ old('department') }}" list="department-list" required>
                             <datalist id="department-list">
                                 @foreach ($departments as $department)
@@ -211,7 +212,7 @@
                             </datalist>
                         </div>
                         <div class="field">
-                            <label for="location">Location</label>
+                            <label for="location">Location <span class="ui-required">*</span></label>
                             <input class="input" id="location" name="location" type="text" value="{{ old('location') }}" required>
                         </div>
                         <div class="field">
@@ -227,7 +228,7 @@
                     <h2 class="section-title">Item Details</h2>
                     <div class="grid-2">
                         <div class="field">
-                            <label for="item_name">Item Name</label>
+                            <label for="item_name">Item Name <span class="ui-required">*</span></label>
                             <input class="input" id="item_name" name="item_name" type="text" value="{{ old('item_name') }}" required>
                         </div>
                         <div class="field">
@@ -244,7 +245,7 @@
                         </div>
                     </div>
                     <div class="field" style="margin-top:12px;">
-                        <label for="description">Description</label>
+                        <label for="description">Description <span class="ui-required">*</span></label>
                         <textarea class="textarea" id="description" name="description" required>{{ old('description') }}</textarea>
                     </div>
                 </section>

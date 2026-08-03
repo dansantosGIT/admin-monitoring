@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\EmployeeRequest;
 use App\Models\Employee;
 use Illuminate\Support\Facades\Storage;
 
@@ -19,34 +19,10 @@ class EmployeeController extends Controller
         return view('employees.create');
     }
 
-    public function store(Request $request)
+    public function store(EmployeeRequest $request)
     {
-        $data = $request->validate([
-            'first_name' => 'required|string|max:150',
-            'last_name' => 'required|string|max:150',
-            'middle_name' => 'nullable|string|max:50',
-            'suffix' => 'nullable|string|max:20',
-            'maiden_name' => 'nullable|string|max:150',
-            'sex' => 'nullable|string|max:10',
-            'civil_status' => 'nullable|string|max:20',
-            'birthdate' => 'nullable|date',
-            'place_of_birth' => 'nullable|string|max:200',
-            'mobile' => 'nullable|string|max:50',
-            'email' => 'nullable|email|max:200',
-            'position' => 'nullable|string|max:200',
-            'department' => 'nullable|string|max:200',
-            'section' => 'nullable|string|max:200',
-            'employment_type' => 'nullable|in:JO,Permanent',
-            'date_hired' => 'nullable|date',
-            'monthly_salary' => 'nullable|numeric',
-            'sss' => 'nullable|string|max:50',
-            'gsis' => 'nullable|string|max:50',
-            'philhealth' => 'nullable|string|max:50',
-            'pagibig' => 'nullable|string|max:50',
-            'tin' => 'nullable|string|max:50',
-            'remarks' => 'nullable|string',
-            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
-        ]);
+        $data = $request->validated();
+        unset($data['present_zip']);
 
         // Structured groups: addresses and simple spouse/parents arrays
         $present = [
@@ -104,34 +80,10 @@ class EmployeeController extends Controller
         return view('employees.edit', compact('employee'));
     }
 
-    public function update(Request $request, Employee $employee)
+    public function update(EmployeeRequest $request, Employee $employee)
     {
-        $data = $request->validate([
-            'first_name' => 'required|string|max:150',
-            'last_name' => 'required|string|max:150',
-            'middle_name' => 'nullable|string|max:50',
-            'suffix' => 'nullable|string|max:20',
-            'maiden_name' => 'nullable|string|max:150',
-            'sex' => 'nullable|string|max:10',
-            'civil_status' => 'nullable|string|max:20',
-            'birthdate' => 'nullable|date',
-            'place_of_birth' => 'nullable|string|max:200',
-            'mobile' => 'nullable|string|max:50',
-            'email' => 'nullable|email|max:200',
-            'position' => 'nullable|string|max:200',
-            'department' => 'nullable|string|max:200',
-            'section' => 'nullable|string|max:200',
-            'employment_type' => 'nullable|in:JO,Permanent',
-            'date_hired' => 'nullable|date',
-            'monthly_salary' => 'nullable|numeric',
-            'sss' => 'nullable|string|max:50',
-            'gsis' => 'nullable|string|max:50',
-            'philhealth' => 'nullable|string|max:50',
-            'pagibig' => 'nullable|string|max:50',
-            'tin' => 'nullable|string|max:50',
-            'remarks' => 'nullable|string',
-            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
-        ]);
+        $data = $request->validated();
+        unset($data['present_zip']);
 
         $present = [
             'address' => $request->input('present_address'),

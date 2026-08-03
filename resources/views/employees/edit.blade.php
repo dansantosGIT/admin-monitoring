@@ -6,9 +6,9 @@
 @push('styles')
 <style>
     :root {
-        --red: #C0172B;
-        --red-dark: #8B0F1E;
-        --red-light: #F9E9EB;
+        --red: #0f62fe;
+        --red-dark: #0b4fd8;
+        --red-light: #eaf2ff;
         --white: #ffffff;
         --panel: rgba(255,255,255,0.92);
         --gray-50: #F6F6F6;
@@ -60,6 +60,7 @@
     .page-header-left { display: flex; align-items: center; gap: 12px; }
     .page-copy { max-width: 760px; }
     .page-badges { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .required-note { margin-top: 10px; font-size: 12px; color: var(--gray-600); }
     .badge-chip {
         display:inline-flex; align-items:center; gap:6px;
         border:1px solid #f1d8dd; border-radius:999px;
@@ -338,6 +339,7 @@
                     <span class="badge-chip"><strong>PDS</strong> editable</span>
                     <span class="badge-chip"><strong>Consistent</strong> dashboard style</span>
                 </div>
+                <div class="required-note">* Required field</div>
             </div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;">
