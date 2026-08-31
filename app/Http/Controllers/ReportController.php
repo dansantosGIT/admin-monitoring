@@ -171,13 +171,18 @@ class ReportController extends Controller
      */
     public function dashboard()
     {
+        $employees = Employee::query()
+            ->orderBy('last_name')
+            ->orderBy('first_name')
+            ->get();
+
         $stats = [
-            'total_employees' => User::count(),
-            'active_employees' => 0,
-            'inactive_employees' => 0,
+            'total_employees' => $employees->count(),
+            'active_employees' => Employee::where('status', 'Active')->count(),
+            'inactive_employees' => Employee::whereIn('status', ['Inactive', 'Separated'])->count(),
             'pending_irs' => Report::where('status', 'pending')->count(),
-            'job_order_count' => 0,
-            'permanent_count' => 0,
+            'job_order_count' => Employee::where('employment_type', 'JO')->count(),
+            'permanent_count' => Employee::where('employment_type', 'Permanent')->count(),
             'present_today' => 0,
             'on_leave_today' => 0,
             'absent_today' => 0,
@@ -190,7 +195,7 @@ class ReportController extends Controller
             'recent_reports' => Report::with('employee')->latest('date_of_incident')->take(10)->get(),
         ];
 
-        return view('dashboard', compact('stats'));
+        return view('dashboard', compact('stats', 'employees'));
     }
 
     /**

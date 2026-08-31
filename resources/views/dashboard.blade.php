@@ -272,7 +272,7 @@
         <div class="employees-panel__header">
             <div>
                 <div id="employeesTitle" class="employees-panel__title">Registered Employees</div>
-                <div style="font-size:12px;color:#6b7280;margin-top:4px;">Browse and filter registered employees</div>
+                <div style="font-size:12px;color:#6b7280;margin-top:4px;">Live records from the Employees page</div>
             </div>
             <div class="employees-panel__controls">
                 <input id="empSearch" type="search" placeholder="Search name…" style="padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;min-width:220px;">
@@ -305,14 +305,17 @@
                 <aside class="employees-preview-card" id="employeePreviewCard">
                     <div class="employee-preview-card__eyebrow">Selected profile</div>
                     <div class="employee-preview-card__name" id="employeePreviewName">Choose an employee</div>
-                    <div class="employee-preview-card__sub">Monitoring preview • placeholder data until backend is connected</div>
+                    <div class="employee-preview-card__sub">Monitoring preview from the existing employee records</div>
                     <div class="employee-preview-grid">
                         <div class="employee-preview-item"><span>Employee No.</span><strong id="employeePreviewNo">—</strong></div>
+                        <div class="employee-preview-item"><span>Mobile</span><strong id="employeePreviewMobile">—</strong></div>
+                        <div class="employee-preview-item"><span>Email</span><strong id="employeePreviewEmail">—</strong></div>
                         <div class="employee-preview-item"><span>Section</span><strong id="employeePreviewSection">—</strong></div>
                         <div class="employee-preview-item"><span>Department</span><strong id="employeePreviewDept">—</strong></div>
                         <div class="employee-preview-item"><span>Age</span><strong id="employeePreviewAge">—</strong></div>
                         <div class="employee-preview-item"><span>Birthdate</span><strong id="employeePreviewBirth">—</strong></div>
                         <div class="employee-preview-item"><span>Employment</span><strong id="employeePreviewType">—</strong></div>
+                        <div class="employee-preview-item"><span>Date Hired</span><strong id="employeePreviewHired">—</strong></div>
                     </div>
                     <div class="employee-preview-item employee-preview-item--full"><span>Status</span><strong id="employeePreviewStatus">—</strong></div>
                     <div class="employee-preview-note" id="employeePreviewNote">Select any registered employee row to preview their monitoring details.</div>
@@ -328,9 +331,7 @@
                             <th>Department</th>
                         </tr>
                     </thead>
-                    <tbody id="employeesTbody">
-                        <!-- rendered by JS -->
-                    </tbody>
+                    <tbody id="employeesTbody"></tbody>
                     </table>
                 </div>
             </div>
@@ -731,43 +732,45 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 <script>
 document.addEventListener('DOMContentLoaded', function(){
-    // Employees data: try server-provided list, otherwise fallback to sample
-    const employeesFromServer = @json($employees ?? null);
-    const sampleEmployees = [
-        {id:1, employee_number:'EMP-2026-001', full_name:'Pedro, John F.', age:32, birthdate:'1993-05-30', gender:'Male', position:'Monitoring Officer', section:'Operations', department:'OPERATIONS', employment_type:'permanent', status:'Active', remarks:'Primary monitoring staff for daily field verification.'},
-        {id:2, employee_number:'EMP-2026-002', full_name:'Reyes, Maria A.', age:29, birthdate:'1996-11-12', gender:'Female', position:'Admin Coordinator', section:'Admin', department:'ADMIN', employment_type:'permanent', status:'Active', remarks:'Handles staff documentation and reporting support.'},
-        {id:3, employee_number:'EMP-2026-003', full_name:'Santos, Marvin D.', age:27, birthdate:'1998-02-18', gender:'Male', position:'Field Staff', section:'Operations', department:'OPERATIONS', employment_type:'job_order', status:'Active', remarks:'Field operations and attendance verification.'},
-        {id:4, employee_number:'EMP-2026-004', full_name:'Bergado, Novel P.', age:35, birthdate:'1990-07-09', gender:'Male', position:'Planning Analyst', section:'Planning', department:'PLANNING', employment_type:'job_order', status:'Active', remarks:'Planning and monitoring review support.'},
-        {id:5, employee_number:'EMP-2026-005', full_name:'Carlos, Kurt R.', age:31, birthdate:'1994-09-03', gender:'Male', position:'CEDOC Specialist', section:'CEDOC', department:'CEDOC', employment_type:'permanent', status:'Active', remarks:'Content and documentation oversight.'},
-        {id:6, employee_number:'EMP-2026-006', full_name:'Domingo, Liza M.', age:26, birthdate:'1999-04-16', gender:'Female', position:'Operations Assistant', section:'Operations', department:'OPERATIONS', employment_type:'job_order', status:'Active', remarks:'Daily monitoring and attendance support.'},
-        {id:7, employee_number:'EMP-2026-007', full_name:'Galvez, Mark L.', age:40, birthdate:'1985-12-22', gender:'Male', position:'Senior Supervisor', section:'Admin', department:'ADMIN', employment_type:'permanent', status:'Active', remarks:'Supervisory review and staff coordination.'},
-        {id:8, employee_number:'EMP-2026-008', full_name:'Tampi, Ansarie P.', age:23, birthdate:'2002-06-28', gender:'Female', position:'Documentation Assistant', section:'CEDOC', department:'CEDOC', employment_type:'job_order', status:'Active', remarks:'Documentation and records assistance.'},
-        {id:9, employee_number:'EMP-2026-009', full_name:'Reyes, Pedro J.', age:38, birthdate:'1987-08-04', gender:'Male', position:'Program Manager', section:'Admin', department:'ADMIN', employment_type:'permanent', status:'Active', remarks:'Program oversight and monitoring coordination.'},
-        {id:10, employee_number:'EMP-2026-010', full_name:'Acot, Mauro T.', age:30, birthdate:'1995-01-11', gender:'Male', position:'Field Technician', section:'Operations', department:'OPERATIONS', employment_type:'job_order', status:'Active', remarks:'Field monitoring and attendance support.'},
-    ];
+    const employeesFromServer = @json($employees ?? []);
 
     function normalizeEmployee(e){
-        const fullName = e.full_name || [e.last_name, e.first_name, e.middle_name, e.suffix].filter(Boolean).join(', ').replace(/, ,/g, ', ');
-        const birthdate = e.birthdate || e.birth_date || e.date_of_birth || 'N/A';
-        const age = e.age ?? (birthdate !== 'N/A' ? new Date().getFullYear() - new Date(birthdate).getFullYear() : '—');
+        const firstName = e.first_name || '';
+        const middleName = e.middle_name || '';
+        const lastName = e.last_name || '';
+        const suffix = e.suffix || '';
+        const fullName = [lastName, [firstName, middleName, suffix].filter(Boolean).join(' ')].filter(Boolean).join(', ');
+        const birthdate = e.birthdate || e.birth_date || e.date_of_birth || null;
+        const dateHired = e.date_hired || null;
+        const age = e.age ?? (birthdate ? new Date().getFullYear() - new Date(birthdate).getFullYear() : '—');
+        const employmentTypeRaw = (e.employment_type || e.employmentType || 'JO').toString().toLowerCase();
+        const employmentType = employmentTypeRaw === 'jo' || employmentTypeRaw === 'job_order' ? 'job_order' : 'permanent';
+        const presentAddress = e.present_address || {};
+        const addressParts = [presentAddress.address, presentAddress.barangay, presentAddress.city, presentAddress.province, presentAddress.zip].filter(Boolean);
         return {
             ...e,
             id: e.id ?? e.employee_id ?? Math.random(),
             employee_number: e.employee_number || e.employee_no || 'EMP-PLACEHOLDER',
             full_name: fullName || 'Unknown Employee',
             age: age,
-            birthdate,
-            gender: e.gender || '—',
+            birthdate: birthdate ? new Date(birthdate).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : '—',
+            date_hired: dateHired ? new Date(dateHired).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : '—',
+            gender: e.gender || e.sex || '—',
             position: e.position || e.role || 'Staff',
             section: e.section || '—',
             department: e.department || '—',
-            employment_type: e.employment_type || e.employmentType || 'job_order',
+            department_key: (e.department || '—').toString().trim().toLowerCase(),
+            employment_type: employmentType,
+            employment_type_label: employmentType === 'permanent' ? 'Permanent' : 'Job Order',
             status: e.status || 'Active',
-            remarks: e.remarks || 'Placeholder monitoring profile until the backend employee module is connected.'
+            mobile: e.mobile || '—',
+            email: e.email || '—',
+            remarks: e.remarks || 'No additional remarks available.',
+            address: addressParts.length ? addressParts.join(', ') : '—',
         };
     }
 
-    const employees = (employeesFromServer && Array.isArray(employeesFromServer) ? employeesFromServer : sampleEmployees).map(normalizeEmployee);
+    const employees = (employeesFromServer && Array.isArray(employeesFromServer) ? employeesFromServer : []).map(normalizeEmployee);
 
     // State
     let state = { page:1, perPage:5, sort:'name_asc', dept:'all', type:'all', q:'' };
@@ -782,12 +785,15 @@ document.addEventListener('DOMContentLoaded', function(){
     const previewAge = document.getElementById('employeePreviewAge');
     const previewBirth = document.getElementById('employeePreviewBirth');
     const previewType = document.getElementById('employeePreviewType');
+    const previewMobile = document.getElementById('employeePreviewMobile');
+    const previewEmail = document.getElementById('employeePreviewEmail');
+    const previewHired = document.getElementById('employeePreviewHired');
     const previewStatus = document.getElementById('employeePreviewStatus');
     const previewNote = document.getElementById('employeePreviewNote');
 
     function applyFilters(list){
         return list.filter(e=>{
-            if(state.dept !== 'all' && e.department !== state.dept) return false;
+            if(state.dept !== 'all' && e.department_key !== state.dept) return false;
             if(state.type !== 'all'){
                 if(state.type === 'permanent' && e.employment_type !== 'permanent') return false;
                 if(state.type === 'job_order' && e.employment_type !== 'job_order') return false;
@@ -819,24 +825,32 @@ document.addEventListener('DOMContentLoaded', function(){
         if(!employee){
             previewName.textContent = 'Choose an employee';
             previewNo.textContent = '—';
+            previewMobile.textContent = '—';
+            previewEmail.textContent = '—';
             previewSection.textContent = '—';
             previewDept.textContent = '—';
             previewAge.textContent = '—';
             previewBirth.textContent = '—';
             previewType.textContent = '—';
+            previewHired.textContent = '—';
             previewStatus.textContent = '—';
             previewNote.textContent = 'Select any registered employee row to preview their monitoring details.';
             return;
         }
         previewName.textContent = employee.full_name;
         previewNo.textContent = employee.employee_number || '—';
+        previewMobile.textContent = employee.mobile || '—';
+        previewEmail.textContent = employee.email || '—';
         previewSection.textContent = employee.section || '—';
         previewDept.textContent = employee.department || '—';
         previewAge.textContent = `${employee.age ?? '—'} yrs`;
         previewBirth.textContent = employee.birthdate || '—';
-        previewType.textContent = employee.employment_type === 'permanent' ? 'Permanent' : 'Job Order';
+        previewType.textContent = employee.employment_type_label || 'Job Order';
+        previewHired.textContent = employee.date_hired || '—';
         previewStatus.textContent = employee.status || 'Active';
-        previewNote.textContent = employee.remarks || 'Monitoring profile placeholder until the backend employee module is connected.';
+        previewNote.textContent = employee.address !== '—'
+            ? `${employee.address}${employee.remarks ? ` • ${employee.remarks}` : ''}`
+            : (employee.remarks || 'No additional remarks available.');
     }
 
     function render(){
@@ -858,10 +872,10 @@ document.addEventListener('DOMContentLoaded', function(){
             tr.innerHTML = `
                 <td>
                     <div class="employee-row">
-                        <div class="employee-avatar-sm">${(e.full_name.split(',')[0] || '').slice(0,2).toUpperCase()}</div>
+                        <div class="employee-avatar-sm">${((e.full_name.split(',')[0] || '').trim().slice(0,2) || 'EM').toUpperCase()}</div>
                         <div>
                             <div style="font-weight:700;color:#111827;">${e.full_name}</div>
-                            <div style="font-size:12px;color:#6b7280;">${e.position} · ${e.employment_type === 'permanent' ? 'Permanent' : 'Job Order'}</div>
+                            <div style="font-size:12px;color:#6b7280;">${e.position} · ${e.employment_type === 'Permanent' ? 'Permanent' : 'Job Order'}</div>
                         </div>
                     </div>
                 </td>
@@ -891,7 +905,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
     // controls
     document.getElementById('empSort').addEventListener('change', (e)=>{ state.sort = e.target.value; render(); });
-    document.getElementById('empDept').addEventListener('change', (e)=>{ state.dept = e.target.value; state.page = 1; render(); });
+    document.getElementById('empDept').addEventListener('change', (e)=>{ state.dept = e.target.value.toLowerCase(); state.page = 1; render(); });
     document.getElementById('empType').addEventListener('change', (e)=>{ state.type = e.target.value; state.page = 1; render(); });
     document.getElementById('empSearch').addEventListener('input', (e)=>{ state.q = e.target.value; state.page = 1; render(); });
 

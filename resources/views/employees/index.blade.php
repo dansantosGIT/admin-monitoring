@@ -370,6 +370,15 @@
         background: #fbfdff;
     }
 
+    .emp-row {
+        cursor: pointer;
+    }
+
+    .emp-row:focus-visible {
+        outline: 2px solid #0f62fe;
+        outline-offset: -2px;
+    }
+
     .emp-photo {
         width: 40px;
         height: 40px;
@@ -541,6 +550,9 @@
                     @foreach($employees as $emp)
                     <tr
                         class="emp-row employee-row"
+                        tabindex="0"
+                        role="link"
+                        data-show-url="{{ route('employees.show', $emp) }}"
                         data-employee-row
                         data-department="{{ strtolower(trim($emp->department ?? '')) }}"
                         data-search="{{ strtolower(trim($emp->last_name.' '.$emp->first_name.' '.$emp->middle_name.' '.$emp->position.' '.$emp->department.' '.($emp->employment_type == 'JO' ? 'Job Order' : $emp->employment_type))) }}"
@@ -657,6 +669,36 @@
                 const isVisible = matchesDepartment && matchesSearch;
 
                 row.hidden = !isVisible;
+
+                if (!row.dataset.rowBound) {
+                    row.dataset.rowBound = 'true';
+
+                    row.addEventListener('click', (event) => {
+                        if (event.target.closest('a, button, form, input, select, textarea, label')) {
+                            return;
+                        }
+
+                        const showUrl = row.dataset.showUrl;
+
+                        if (showUrl) {
+                            window.location.href = showUrl;
+                        }
+                    });
+
+                    row.addEventListener('keydown', (event) => {
+                        if (event.key !== 'Enter' && event.key !== ' ') {
+                            return;
+                        }
+
+                        event.preventDefault();
+
+                        const showUrl = row.dataset.showUrl;
+
+                        if (showUrl) {
+                            window.location.href = showUrl;
+                        }
+                    });
+                }
 
                 if (isVisible) {
                     visibleCount += 1;

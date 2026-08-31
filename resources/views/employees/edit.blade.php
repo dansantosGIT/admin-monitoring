@@ -238,6 +238,12 @@
         box-shadow: inset 0 0 0 1px rgba(192,23,43,0.05);
         overflow: hidden;
     }
+    .photo-placeholder img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
     .photo-placeholder svg { width: 32px; height: 32px; }
     .photo-label {
         display: inline-flex;
