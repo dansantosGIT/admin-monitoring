@@ -347,14 +347,15 @@
         table-layout: fixed;
     }
 
-    .emp-table th,
-    .emp-table td {
-        padding: 14px 12px;
-        border-bottom: 1px solid #edf2f7;
-        vertical-align: middle;
-        font-size: 13px;
-        overflow-wrap: anywhere;
-    }
+  .emp-table th,
+.emp-table td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #edf2f7;
+    vertical-align: middle;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+    text-align: center;
+}
 
     .emp-table thead th {
         background: #f8fbff;
@@ -383,12 +384,14 @@
     }
 
     .emp-name-cell .employee-cell {
-        min-width: 0;
-    }
+    min-width: 0;
+    justify-content: center;
+}
 
     .emp-name-cell .employee-copy {
-        min-width: 0;
-    }
+    min-width: 0;
+    text-align: left; /* keep name text left-aligned within its own block for readability */
+}
 
     @media (max-width: 1100px) {
         .stats-grid {
@@ -425,9 +428,13 @@
             padding: 10px;
         }
 
-        .action-group {
-            justify-content: flex-start;
-        }
+       .action-group {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    min-width: 0;
+}
 
         .action-group .btn {
             width: 100%;
@@ -525,8 +532,8 @@
                     <th>Position</th>
                     <th>Department</th>
                     <th>Employment</th>
-                    <th style="width:140px;text-align:right">Date Hired</th>
-                    <th style="width:180px;text-align:right">Actions</th>
+                    <th style="width:140px">Date Hired</th>
+                    <th style="width:180px">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -552,8 +559,7 @@
                         <td>{{ $emp->position }}</td>
                         <td>{{ $emp->department }}</td>
                         <td>{{ $emp->employment_type == 'JO' ? 'Job Order' : $emp->employment_type }}</td>
-                        <td style="text-align:right">{{ optional($emp->date_hired)->format('F j, Y') }}</td>
-                        <td>
+                        <td>{{ optional($emp->date_hired)->format('F j, Y') }}</td>                        <td>
                             <div class="action-group">
                                 <a href="{{ route('employees.show', $emp) }}" class="btn secondary">View</a>
                                 <a href="{{ route('employees.edit', $emp) }}" class="btn">Edit</a>
