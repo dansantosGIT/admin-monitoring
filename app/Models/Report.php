@@ -21,8 +21,12 @@ class Report extends Model
         'incident_code',
         'employee_id',
         'department',
+        'team',
+        'department_other',
         'incident_type',
         'item_name',
+        'property_number',
+        'serial_number',
         'property_serial_no',
         'description',
         'location',
@@ -85,8 +89,13 @@ class Report extends Model
         return $query->where(function ($builder) use ($term) {
             $builder->where('incident_code', 'like', "%{$term}%")
                 ->orWhere('department', 'like', "%{$term}%")
+                ->orWhere('team', 'like', "%{$term}%")
+                ->orWhere('department_other', 'like', "%{$term}%")
                 ->orWhere('incident_type', 'like', "%{$term}%")
                 ->orWhere('item_name', 'like', "%{$term}%")
+                ->orWhere('property_number', 'like', "%{$term}%")
+                ->orWhere('serial_number', 'like', "%{$term}%")
+                ->orWhere('property_serial_no', 'like', "%{$term}%")
                 ->orWhere('location', 'like', "%{$term}%")
                 ->orWhereHas('employee', function ($employeeQuery) use ($term) {
                     $employeeQuery->where('first_name', 'like', "%{$term}%")

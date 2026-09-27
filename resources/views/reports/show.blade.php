@@ -193,7 +193,8 @@
             <div class="item"><span class="label">Incident Type</span><div class="value">{{ $typeLabels[$report->incident_type] ?? ucwords(str_replace('_', ' ', $report->incident_type)) }}</div></div>
             <div class="item"><span class="label">Location</span><div class="value">{{ $report->location }}</div></div>
             <div class="item"><span class="label">Item Name</span><div class="value">{{ $report->item_name }}</div></div>
-            <div class="item"><span class="label">Property / Serial No.</span><div class="value">{{ $report->property_serial_no ?: 'N/A' }}</div></div>
+            <div class="item"><span class="label">Property Number</span><div class="value">{{ $report->property_number ?: $report->property_serial_no ?: 'N/A' }}</div></div>
+            <div class="item"><span class="label">Serial Number</span><div class="value">{{ $report->serial_number ?: 'N/A' }}</div></div>
             <div class="item"><span class="label">Severity</span><div class="value"><span class="badge {{ $severityClasses[$report->severity] ?? 'badge--minor' }}">{{ ucfirst($report->severity) }}</span></div></div>
             <div class="item"><span class="label">Status</span><div class="value"><span class="badge {{ $statusClasses[$report->status] ?? 'badge--pending' }}">{{ ucwords(str_replace('_', ' ', $report->status)) }}</span></div></div>
             <div class="item"><span class="label">Estimated Cost</span><div class="value">{{ $report->estimated_cost !== null ? number_format((float) $report->estimated_cost, 2) : 'N/A' }}</div></div>

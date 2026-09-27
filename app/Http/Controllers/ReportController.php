@@ -60,9 +60,12 @@ class ReportController extends Controller
                 'incident_code' => $this->generateIncidentCode(),
                 'employee_id' => $validated['employee_id'],
                 'department' => $validated['department'],
+                'team' => $validated['team'] ?? null,
+                'department_other' => $validated['department_other'] ?? null,
                 'incident_type' => $validated['incident_type'],
                 'item_name' => $validated['item_name'],
-                'property_serial_no' => $validated['property_serial_no'] ?? null,
+                'property_number' => $validated['property_number'] ?? null,
+                'serial_number' => $validated['serial_number'] ?? null,
                 'description' => $validated['description'],
                 'location' => $validated['location'],
                 'date_of_incident' => $validated['date_of_incident'],
@@ -111,14 +114,6 @@ class ReportController extends Controller
 
         DB::transaction(function () use ($validated, $request, $report) {
             $report->update([
-                'employee_id' => $validated['employee_id'],
-                'department' => $validated['department'],
-                'incident_type' => $validated['incident_type'],
-                'item_name' => $validated['item_name'],
-                'property_serial_no' => $validated['property_serial_no'] ?? null,
-                'description' => $validated['description'],
-                'location' => $validated['location'],
-                'date_of_incident' => $validated['date_of_incident'],
                 'severity' => $validated['severity'],
                 'estimated_cost' => $validated['estimated_cost'] ?? null,
                 'status' => $validated['status'],
@@ -271,12 +266,25 @@ class ReportController extends Controller
     {
         return [
             'employees' => Employee::query()->orderBy('last_name')->orderBy('first_name')->get(),
-            'departments' => Employee::query()
-                ->whereNotNull('department')
-                ->where('department', '!=', '')
-                ->distinct()
-                ->orderBy('department')
-                ->pluck('department'),
+            'departmentOptions' => [
+                'CEDOC' => 'CEDOC',
+                'LOGISTICS' => 'LOGISTICS',
+                'PLANNING' => 'PLANNING',
+                'ADMIN & TRAINING' => 'ADMIN & TRAINING',
+                'OPERATIONS' => 'OPERATIONS',
+                'VOLUNTEER' => 'VOLUNTEER',
+                'OTHERS' => 'OTHERS',
+            ],
+            'propertySerialTypeOptions' => [
+                'Property Number' => 'Property Number',
+                'Serial Number' => 'Serial Number',
+            ],
+            'teamOptions' => [
+                'Team Alpha' => 'Team Alpha',
+                'Team Bravo' => 'Team Bravo',
+                'Team Charlie' => 'Team Charlie',
+                'Team Delta' => 'Team Delta',
+            ],
             'incidentTypes' => [
                 'equipment_damage' => 'Equipment Damage',
                 'equipment_loss' => 'Equipment Loss',
