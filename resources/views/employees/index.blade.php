@@ -347,14 +347,15 @@
         table-layout: fixed;
     }
 
-    .emp-table th,
-    .emp-table td {
-        padding: 14px 12px;
-        border-bottom: 1px solid #edf2f7;
-        vertical-align: middle;
-        font-size: 13px;
-        overflow-wrap: anywhere;
-    }
+  .emp-table th,
+.emp-table td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #edf2f7;
+    vertical-align: middle;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+    text-align: center;
+}
 
     .emp-table thead th {
         background: #f8fbff;
@@ -367,6 +368,15 @@
 
     .emp-row:hover {
         background: #fbfdff;
+    }
+
+    .emp-row {
+        cursor: pointer;
+    }
+
+    .emp-row:focus-visible {
+        outline: 2px solid #0f62fe;
+        outline-offset: -2px;
     }
 
     .emp-photo {
@@ -383,12 +393,14 @@
     }
 
     .emp-name-cell .employee-cell {
-        min-width: 0;
-    }
+    min-width: 0;
+    justify-content: center;
+}
 
     .emp-name-cell .employee-copy {
-        min-width: 0;
-    }
+    min-width: 0;
+    text-align: left; /* keep name text left-aligned within its own block for readability */
+}
 
     @media (max-width: 1100px) {
         .stats-grid {
@@ -425,9 +437,13 @@
             padding: 10px;
         }
 
-        .action-group {
-            justify-content: flex-start;
-        }
+       .action-group {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    min-width: 0;
+}
 
         .action-group .btn {
             width: 100%;
@@ -525,8 +541,8 @@
                     <th>Position</th>
                     <th>Department</th>
                     <th>Employment</th>
-                    <th style="width:140px;text-align:right">Date Hired</th>
-                    <th style="width:180px;text-align:right">Actions</th>
+                    <th style="width:140px">Date Hired</th>
+                    <th style="width:180px">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -534,6 +550,9 @@
                     @foreach($employees as $emp)
                     <tr
                         class="emp-row employee-row"
+                        tabindex="0"
+                        role="link"
+                        data-show-url="{{ route('employees.show', $emp) }}"
                         data-employee-row
                         data-department="{{ strtolower(trim($emp->department ?? '')) }}"
                         data-search="{{ strtolower(trim($emp->last_name.' '.$emp->first_name.' '.$emp->middle_name.' '.$emp->position.' '.$emp->department.' '.($emp->employment_type == 'JO' ? 'Job Order' : $emp->employment_type))) }}"
@@ -552,8 +571,7 @@
                         <td>{{ $emp->position }}</td>
                         <td>{{ $emp->department }}</td>
                         <td>{{ $emp->employment_type == 'JO' ? 'Job Order' : $emp->employment_type }}</td>
-                        <td style="text-align:right">{{ optional($emp->date_hired)->format('F j, Y') }}</td>
-                        <td>
+                        <td>{{ optional($emp->date_hired)->format('F j, Y') }}</td>                        <td>
                             <div class="action-group">
                                 <a href="{{ route('employees.show', $emp) }}" class="btn secondary">View</a>
                                 <a href="{{ route('employees.edit', $emp) }}" class="btn">Edit</a>
@@ -651,6 +669,36 @@
                 const isVisible = matchesDepartment && matchesSearch;
 
                 row.hidden = !isVisible;
+
+                if (!row.dataset.rowBound) {
+                    row.dataset.rowBound = 'true';
+
+                    row.addEventListener('click', (event) => {
+                        if (event.target.closest('a, button, form, input, select, textarea, label')) {
+                            return;
+                        }
+
+                        const showUrl = row.dataset.showUrl;
+
+                        if (showUrl) {
+                            window.location.href = showUrl;
+                        }
+                    });
+
+                    row.addEventListener('keydown', (event) => {
+                        if (event.key !== 'Enter' && event.key !== ' ') {
+                            return;
+                        }
+
+                        event.preventDefault();
+
+                        const showUrl = row.dataset.showUrl;
+
+                        if (showUrl) {
+                            window.location.href = showUrl;
+                        }
+                    });
+                }
 
                 if (isVisible) {
                     visibleCount += 1;

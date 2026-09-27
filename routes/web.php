@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AttendanceController;
@@ -34,6 +36,39 @@ Route::middleware('auth')->group(function () {
     // Resource routes for sidebar pages
     Route::resource('employees', EmployeeController::class);
     Route::resource('attendance', AttendanceController::class);
+
+    // PSGC proxy for Philippine address dropdowns
+    Route::get('/location/psgc/{path?}', function (Request $request, ?string $path = null) {
+        $normalizedPath = ltrim((string) $path, '/');
+
+        if ($normalizedPath === '') {
+            return response()->json(['message' => 'Missing PSGC path.'], 404);
+        }
+
+        $cacheKey = 'psgc:' . $normalizedPath;
+        $payload = Cache::get($cacheKey);
+
+        if (! is_array($payload)) {
+            $response = Http::acceptJson()->get('https://psgc.cloud/api/v2/' . $normalizedPath);
+
+            if (! $response->successful()) {
+                return response()->json(['message' => 'Unable to load PSGC data.'], $response->status());
+            }
+
+            $payload = [
+                'status' => $response->status(),
+                'body' => $response->json(),
+            ];
+
+            Cache::put($cacheKey, $payload, now()->addDays(7));
+        }
+
+        if (! array_key_exists('body', $payload) || $payload['body'] === null) {
+            return response()->json(['message' => 'Unable to load PSGC data.'], $payload['status'] ?? 502);
+        }
+
+        return response()->json($payload['body'], $payload['status'] ?? 200);
+    })->where('path', '.*')->name('location.psgc');
 
     // Legacy incidents URL — redirect to reports
     Route::redirect('/incidents', '/reports');

@@ -238,6 +238,12 @@
         box-shadow: inset 0 0 0 1px rgba(192,23,43,0.05);
         overflow: hidden;
     }
+    .photo-placeholder img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
     .photo-placeholder svg { width: 32px; height: 32px; }
     .photo-label {
         display: inline-flex;
@@ -370,6 +376,8 @@
         data-old-zip="{{ old('present_zip', data_get($employee->present_address, 'zip', '')) }}">
         @csrf
         @method('PUT')
+        @php($philippineProvinces = config('philippine_locations.provinces', []))
+        @php($philippineLocationIndex = json_decode(file_get_contents(public_path('data/philippine_location_index.json')), true) ?: [])
         <div class="form-layout">
 
             <div>
@@ -462,6 +470,9 @@
                                 <label class="field-label">Province</label>
                                 <select class="field-select" name="present_province" data-location="province">
                                     <option value="">Select province</option>
+                                    @foreach ($philippineProvinces as $province)
+                                        <option value="{{ $province['name'] }}" data-code="{{ $province['code'] }}" data-kind="{{ $province['kind'] }}" {{ old('present_province', data_get($employee->present_address, 'province', '')) === $province['name'] ? 'selected' : '' }}>{{ $province['name'] }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div class="field">
@@ -480,11 +491,11 @@
                         <div class="field-row col-2">
                             <div class="field">
                                 <label class="field-label">ZIP Code</label>
-                                <input class="field-input" name="present_zip" data-location="zip" value="{{ old('present_zip', data_get($employee->present_address, 'zip', '')) }}" placeholder="0000" inputmode="numeric" pattern="[0-9]{4}">
+                                <input class="field-input" name="present_zip" data-location="zip" value="{{ old('present_zip', data_get($employee->present_address, 'zip', '')) }}" placeholder="0000" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" autocomplete="postal-code">
                             </div>
                             <div class="field">
                                 <label class="field-label">Mobile Number</label>
-                                <input class="field-input" name="mobile" value="{{ old('mobile', $employee->mobile) }}" placeholder="09XX XXX XXXX">
+                                <input class="field-input" name="mobile" value="{{ old('mobile', $employee->mobile) }}" placeholder="09123456789" inputmode="numeric" maxlength="11" pattern="09[0-9]{9}" autocomplete="tel">
                             </div>
                         </div>
                         <div class="field-row col-1">
@@ -560,16 +571,13 @@
                             </div>
                             <div class="field">
                                 <label class="field-label">Department</label>
-                                @php
-                                    $departments = ['Admin', 'Logistics', 'Operations', 'CEDOC', 'Planning'];
-                                    $selectedDepartment = old('department', $employee->department ?? '');
-                                @endphp
+                                    @php($selectedDepartment = old('department', $employee->department ?? ''))
                                 <select class="field-select" name="department">
                                     <option value="">Select department</option>
-                                    @foreach ($departments as $dept)
+                                        @foreach (['Admin', 'Logistics', 'Operations', 'CEDOC', 'Planning'] as $dept)
                                         <option value="{{ $dept }}" {{ $selectedDepartment === $dept ? 'selected' : '' }}>{{ $dept }}</option>
                                     @endforeach
-                                    @if ($selectedDepartment && ! in_array($selectedDepartment, $departments, true))
+                                        @if ($selectedDepartment && ! in_array($selectedDepartment, ['Admin', 'Logistics', 'Operations', 'CEDOC', 'Planning'], true))
                                         <option value="{{ $selectedDepartment }}" selected>{{ $selectedDepartment }}</option>
                                     @endif
                                 </select>
@@ -778,8 +786,7 @@
     });
 
     (function initPhilippineLocationCascades() {
-        const API_BASE = 'https://psgc.cloud/api/v2';
-        const NCR_REGION_CODE = '1300000000';
+        const LOCATION_INDEX = @json($philippineLocationIndex);
         const forms = document.querySelectorAll('form[data-location-form="present"]');
 
         if (!forms.length) return;
@@ -798,12 +805,7 @@
             .replace(/^municipality of\s+/i, '')
             .trim();
 
-        const fetchJson = async (url) => {
-            const response = await fetch(url, { headers: { Accept: 'application/json' } });
-            if (!response.ok) throw new Error('Location request failed');
-            const payload = await response.json();
-            return Array.isArray(payload?.data) ? payload.data : [];
-        };
+        const getLocationIndex = async () => LOCATION_INDEX || {};
 
         let zipLookupPromise;
         const getZipLookup = async () => {
@@ -841,6 +843,7 @@
                 option.textContent = item.name;
                 option.dataset.code = item.code;
                 option.dataset.kind = item.kind || '';
+                option.dataset.zip = item.zip || '';
                 option.dataset.normalized = normalize(item.name);
                 select.appendChild(option);
             });
@@ -850,27 +853,32 @@
         const selectByName = (select, targetName) => {
             const target = normalize(targetName);
             if (!target) return false;
-            const match = Array.from(select.options).find((option) => option.dataset.normalized === target);
+            const match = Array.from(select.options).find((option) => {
+                const normalized = option.dataset.normalized || normalize(option.value || option.textContent);
+                return normalized === target;
+            });
             if (!match) return false;
             select.value = match.value;
             return true;
         };
 
-        const cityFromApiRow = (row) => {
-            const type = String(row?.type || '').toLowerCase();
-            const isCityOrMunicipality = type.includes('city') || type.includes('municipality');
-            return {
-                code: row.code,
-                name: row.name,
-                kind: isCityOrMunicipality ? 'city' : 'other'
-            };
+        const findCachedItems = (source, key) => {
+            if (!source || !key) return [];
+            if (Array.isArray(source[key])) return source[key];
+
+            const target = normalize(key);
+            const matchedKey = Object.keys(source).find((candidate) => normalize(candidate) === target);
+            return matchedKey && Array.isArray(source[matchedKey]) ? source[matchedKey] : [];
         };
 
-        const resolveZip = async (barangayName, cityName) => {
+        const resolveZip = async ({ barangayName, cityName, provinceName }) => {
             const lookup = await getZipLookup();
             const candidates = [
                 barangayName,
+                `${barangayName}, ${cityName}, ${provinceName}`,
                 cityName,
+                `${barangayName}, ${provinceName}`,
+                provinceName,
                 sanitizeCityName(cityName),
                 `${barangayName}, ${cityName}`,
                 `${barangayName}, ${sanitizeCityName(cityName)}`
@@ -889,6 +897,7 @@
             const citySelect = form.querySelector('select[name="present_city"]');
             const barangaySelect = form.querySelector('select[name="present_barangay"]');
             const zipInput = form.querySelector('input[name="present_zip"]');
+            const mobileInput = form.querySelector('input[name="mobile"]');
 
             if (!provinceSelect || !citySelect || !barangaySelect || !zipInput) return;
 
@@ -897,47 +906,43 @@
             const oldBarangay = form.dataset.oldBarangay || '';
             const oldZip = form.dataset.oldZip || '';
 
-            setLoading(provinceSelect, 'Loading provinces...');
-            setLoading(citySelect, 'Select city/municipality');
-            setLoading(barangaySelect, 'Select barangay');
-
-            let provinces = [];
-            try {
-                const rows = await fetchJson(`${API_BASE}/provinces`);
-                provinces = rows
-                    .map((row) => ({ code: row.code, name: row.name, kind: 'province' }))
-                    .sort((a, b) => a.name.localeCompare(b.name));
-                provinces.unshift({ code: NCR_REGION_CODE, name: 'National Capital Region (NCR)', kind: 'region' });
-            } catch (error) {
-                setLoading(provinceSelect, 'Unable to load provinces');
-                return;
+            if (mobileInput) {
+                mobileInput.setAttribute('inputmode', 'numeric');
+                mobileInput.setAttribute('maxlength', '11');
+                mobileInput.setAttribute('pattern', '09[0-9]{9}');
+                mobileInput.addEventListener('input', () => {
+                    mobileInput.value = mobileInput.value.replace(/\D+/g, '').slice(0, 11);
+                });
             }
 
-            fillSelect(provinceSelect, provinces, 'Select province');
+            setLoading(citySelect, 'Select city/municipality');
+            setLoading(barangaySelect, 'Select barangay');
             selectByName(provinceSelect, oldProvince);
 
-            const loadCities = async () => {
-                const selectedProvince = provinceSelect.selectedOptions[0];
-                const provinceCode = selectedProvince?.dataset.code || '';
-                const provinceKind = selectedProvince?.dataset.kind || '';
+            const getProvinceKey = () => provinceSelect.value;
 
-                setLoading(citySelect, provinceCode ? 'Loading cities...' : 'Select city/municipality');
+            const getCachedItems = async (section, key) => {
+                const index = await getLocationIndex();
+                const source = index?.[section] || {};
+                return findCachedItems(source, key);
+            };
+
+            const loadCities = async () => {
+                const provinceName = getProvinceKey();
+
+                setLoading(citySelect, provinceName ? 'Loading cities...' : 'Select city/municipality');
                 setLoading(barangaySelect, 'Select barangay');
 
-                if (!provinceCode) return;
+                if (!provinceName) return;
 
-                const endpoint = provinceKind === 'region'
-                    ? `${API_BASE}/regions/${provinceCode}/cities-municipalities`
-                    : `${API_BASE}/provinces/${provinceCode}/cities-municipalities`;
+                const cities = (await getCachedItems('citiesByProvince', provinceName))
+                    .filter((item) => {
+                        const type = String(item?.type || '').toLowerCase();
+                        return type.includes('city') || type.includes('mun');
+                    })
+                    .sort((a, b) => a.name.localeCompare(b.name));
 
-                let cities = [];
-                try {
-                    const rows = await fetchJson(endpoint);
-                    cities = rows
-                        .map(cityFromApiRow)
-                        .filter((item) => item.kind === 'city')
-                        .sort((a, b) => a.name.localeCompare(b.name));
-                } catch (error) {
+                if (!cities.length) {
                     setLoading(citySelect, 'Unable to load cities');
                     return;
                 }
@@ -949,23 +954,21 @@
             };
 
             const loadBarangays = async () => {
-                const selectedCity = citySelect.selectedOptions[0];
-                const cityCode = selectedCity?.dataset.code || '';
+                const provinceName = getProvinceKey();
+                const cityName = citySelect.value;
 
-                setLoading(barangaySelect, cityCode ? 'Loading barangays...' : 'Select barangay');
+                setLoading(barangaySelect, cityName ? 'Loading barangays...' : 'Select barangay');
 
-                if (!cityCode) {
+                if (!provinceName || !cityName) {
                     if (!zipInput.value) zipInput.value = oldZip;
                     return;
                 }
 
-                let barangays = [];
-                try {
-                    const rows = await fetchJson(`${API_BASE}/cities-municipalities/${cityCode}/barangays`);
-                    barangays = rows
-                        .map((row) => ({ code: row.code, name: row.name, kind: 'barangay' }))
-                        .sort((a, b) => a.name.localeCompare(b.name));
-                } catch (error) {
+                const barangays = (await getCachedItems('barangaysByProvinceAndCity', `${provinceName}||${cityName}`))
+                    .map((row) => ({ code: row.code, name: row.name, kind: 'barangay', zip: row.zip }))
+                    .sort((a, b) => a.name.localeCompare(b.name));
+
+                if (!barangays.length) {
                     setLoading(barangaySelect, 'Unable to load barangays');
                     return;
                 }
@@ -976,17 +979,26 @@
                 }
             };
 
-            const applyZip = async () => {
+            const applyZip = async ({ preserveFallback = false } = {}) => {
+                const provinceName = provinceSelect.value;
                 const cityName = citySelect.value;
                 const barangayName = barangaySelect.value;
-                const zip = await resolveZip(barangayName, cityName);
-                zipInput.value = zip || oldZip || '';
+                const selectedProvince = provinceSelect.selectedOptions[0];
+                const selectedCity = citySelect.selectedOptions[0];
+                const selectedBarangay = barangaySelect.selectedOptions[0];
+                const zip = selectedBarangay?.dataset.zip
+                    || selectedCity?.dataset.zip
+                    || selectedProvince?.dataset.zip
+                    || await resolveZip({ barangayName, cityName, provinceName });
+                zipInput.value = zip || (preserveFallback ? oldZip : '');
             };
 
             provinceSelect.addEventListener('change', async () => {
                 citySelect.dataset.initialized = 'true';
                 barangaySelect.dataset.initialized = 'true';
                 zipInput.value = '';
+                citySelect.value = '';
+                barangaySelect.value = '';
                 await loadCities();
             });
 
@@ -1003,7 +1015,7 @@
             citySelect.dataset.initialized = 'true';
             await loadBarangays();
             barangaySelect.dataset.initialized = 'true';
-            await applyZip();
+            await applyZip({ preserveFallback: true });
         });
     })();
 </script>

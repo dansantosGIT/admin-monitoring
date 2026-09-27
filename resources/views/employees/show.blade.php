@@ -8,6 +8,23 @@
         .btn { display:inline-flex;align-items:center;justify-content:center;padding:8px 12px;border-radius:8px;border:none;background:#111;color:white;text-decoration:none; cursor:pointer; transition:transform .12s ease,box-shadow .12s ease }
         .btn:hover{ transform:translateY(-3px); box-shadow:0 10px 30px rgba(13,30,60,0.12) }
         .btn.secondary{ background:#f3f4f6;color:#111 }
+        .photo-frame {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin: 0 auto 12px;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .photo-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
     </style>
 
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
@@ -24,9 +41,11 @@
     <div style="display:grid;grid-template-columns:240px 1fr;gap:18px">
         <aside style="background:#fff;padding:14px;border-radius:10px;border:1px solid #f3f4f6;text-align:center">
             @if($employee->photo_path)
-                <img src="{{ asset('storage/'.$employee->photo_path) }}" alt="photo" style="width:160px;height:160px;border-radius:50%;object-fit:cover;margin:0 auto 12px">
+                <div class="photo-frame">
+                    <img src="{{ asset('storage/'.$employee->photo_path) }}" alt="photo">
+                </div>
             @else
-                <div style="width:160px;height:160px;background:#f3f4f6;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center">No photo</div>
+                <div class="photo-frame" style="color:#6b7280">No photo</div>
             @endif
             <div style="font-weight:700">{{ $employee->first_name }} {{ $employee->last_name }}</div>
             <div style="color:var(--muted);font-size:13px;margin-top:6px">Employee No: {{ $employee->employee_number ?? '-' }}</div>
