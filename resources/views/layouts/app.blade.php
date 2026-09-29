@@ -133,6 +133,21 @@
                 gap: 0;
             }
 
+            body.sidebar-collapsed .nav-submenu {
+                display: none;
+            }
+
+            body.sidebar-collapsed .nav-group-toggle {
+                justify-content: center;
+                padding-left: 0;
+                padding-right: 0;
+                gap: 0;
+            }
+
+            body.sidebar-collapsed .nav-group-toggle .nav-chevron {
+                display: none;
+            }
+
             body.sidebar-collapsed .app-main-column {
                 min-width: 0;
             }
@@ -210,7 +225,7 @@
                 overflow: hidden;
             }
 
-            .nav a svg {
+            .nav-icon {
                 width: 18px;
                 height: 18px;
                 flex-shrink: 0;
@@ -219,6 +234,67 @@
             .nav a.active {
                 color: var(--accent);
                 background: var(--accent-soft);
+            }
+
+            .nav-group {
+                display: grid;
+                gap: 4px;
+            }
+
+            .nav-group-toggle {
+                width: 100%;
+                border: 0;
+                font: inherit;
+                text-align: left;
+                cursor: pointer;
+                background: transparent;
+                text-decoration: none;
+                padding: 10px 12px;
+                border-radius: 8px;
+                color: var(--muted);
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-weight: 600;
+                overflow: hidden;
+            }
+
+            .nav-group-toggle.active {
+                color: var(--accent);
+                background: var(--accent-soft);
+            }
+
+            .nav-group-toggle:hover,
+            .nav-group-toggle:focus-visible {
+                color: var(--accent);
+                background: #f3f6fb;
+                outline: none;
+            }
+
+            .nav-group-toggle .nav-chevron {
+                width: 14px;
+                height: 14px;
+                margin-left: auto;
+                transition: transform 0.18s ease;
+            }
+
+            .nav-group.is-open .nav-chevron {
+                transform: rotate(180deg);
+            }
+
+            .nav-submenu {
+                display: none;
+                margin-left: 28px;
+                gap: 4px;
+            }
+
+            .nav-group.is-open .nav-submenu {
+                display: grid;
+            }
+
+            .nav-submenu a {
+                padding: 8px 12px;
+                font-size: 13px;
             }
 
             .app-main {

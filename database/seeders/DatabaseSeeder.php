@@ -28,6 +28,10 @@ class DatabaseSeeder extends Seeder
         );
 
         // Seed sample employees
-        $this->call([EmployeeSeeder::class]);
+        $this->call([
+            EmployeeSeeder::class,
+            TaskOptionSeeder::class,
+            VehicleSeeder::class,
+        ]);
     }
 }

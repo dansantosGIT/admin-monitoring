@@ -193,6 +193,7 @@
     }
 
     .preview-item {
+        position: relative;
         border: 1px solid #dce5ef;
         border-radius: 12px;
         padding: 8px;
@@ -204,6 +205,27 @@
         text-align: center;
         font-size: 12px;
         color: #607086;
+    }
+
+    .preview-remove {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        width: 26px;
+        height: 26px;
+        border: 1px solid #dce5ef;
+        border-radius: 50%;
+        background: #fff;
+        color: #c53030;
+        font-size: 16px;
+        line-height: 1;
+        cursor: pointer;
+    }
+
+    .preview-remove:hover,
+    .preview-remove:focus-visible {
+        background: #fff5f5;
+        border-color: #c53030;
     }
 
     .preview-item img {
@@ -449,25 +471,6 @@
 @push('scripts')
 <script>
     (function () {
-        const form = document.querySelector('[data-incident-form]');
-        const attachmentInput = document.getElementById('attachments');
-        const preview = document.getElementById('attachmentPreview');
-        const moneyInput = document.getElementById('estimated_cost');
-        const departmentCategory = document.getElementById('department_category');
-        const departmentOperationsPanel = document.getElementById('departmentOperationsPanel');
-        const departmentOthersPanel = document.getElementById('departmentOthersPanel');
-        const departmentTeam = document.getElementById('department_team');
-        const departmentOtherDetail = document.getElementById('department_other_detail');
-        const requiredFields = ['date_of_incident', 'incident_type', 'severity', 'status', 'employee_id', 'location', 'item_name', 'description'];
-        const capitalizedFields = ['location', 'item_name', 'property_serial_no', 'department_other_detail', 'description', 'action_taken', 'remarks'];
-
-        const titleCase = (value) => value
-            .toLowerCase()
-            .replace(/\b([a-z])/g, (match) => match.toUpperCase());
-
-        @push('scripts')
-        <script>
-            (function () {
                 const form = document.querySelector('[data-incident-form]');
                 const attachmentInput = document.getElementById('attachments');
                 const preview = document.getElementById('attachmentPreview');
@@ -479,6 +482,7 @@
                 const teamPanel = document.getElementById('departmentTeamPanel');
                 const otherPanel = document.getElementById('departmentOtherPanel');
                 const estimatedCost = document.getElementById('estimated_cost');
+                let selectedAttachments = [];
 
                 const titleCase = (value) => value
                     .toLowerCase()
@@ -679,18 +683,26 @@
                     clearError('estimated_cost');
                 });
 
-                attachmentInput?.addEventListener('change', () => {
-                    const files = Array.from(attachmentInput.files || []);
+                const renderAttachmentPreview = () => {
                     preview.innerHTML = '';
 
-                    if (!files.length) {
+                    if (!selectedAttachments.length) {
                         preview.innerHTML = '<div class="preview-item">No files selected</div>';
                         return;
                     }
 
-                    files.forEach((file) => {
+                    selectedAttachments.forEach((file, index) => {
                         const item = document.createElement('div');
                         item.className = 'preview-item';
+
+                        const removeButton = document.createElement('button');
+                        removeButton.type = 'button';
+                        removeButton.className = 'preview-remove';
+                        removeButton.dataset.attachmentIndex = index;
+                        removeButton.setAttribute('aria-label', `Remove ${file.name}`);
+                        removeButton.title = 'Remove attachment';
+                        removeButton.textContent = '\u00d7';
+                        item.appendChild(removeButton);
 
                         if (file.type.startsWith('image/')) {
                             const img = document.createElement('img');
@@ -705,6 +717,26 @@
 
                         preview.appendChild(item);
                     });
+                };
+
+                attachmentInput?.addEventListener('change', () => {
+                    selectedAttachments = Array.from(attachmentInput.files || []);
+                    renderAttachmentPreview();
+                });
+
+                preview?.addEventListener('click', (event) => {
+                    const removeButton = event.target.closest('[data-attachment-index]');
+
+                    if (!removeButton) {
+                        return;
+                    }
+
+                    selectedAttachments.splice(Number(removeButton.dataset.attachmentIndex), 1);
+
+                    const dataTransfer = new DataTransfer();
+                    selectedAttachments.forEach((file) => dataTransfer.items.add(file));
+                    attachmentInput.files = dataTransfer.files;
+                    renderAttachmentPreview();
                 });
 
                 showDepartmentPanels();
@@ -745,7 +777,6 @@
 
                 showDepartmentPanels();
             })();
-        </script>
         </script>
         @endpush
 

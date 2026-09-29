@@ -8,6 +8,8 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\VehicleMonitoringController;
+use App\Http\Controllers\VehicleController;
 
 // Welcome Landing Page — redirect to login
 Route::get('/', function () {
@@ -20,6 +22,16 @@ Route::middleware('auth')->group(function () {
 
     // System Health Check
     Route::get('/health', [ReportController::class, 'systemHealth'])->name('health');
+
+    // Vehicle Monitoring must be declared before the resource wildcard route.
+    Route::get('/reports/vehicle-monitoring', [VehicleController::class, 'index'])->name('reports.vehicle-monitoring');
+    Route::get('/reports/vehicle-monitoring/create', [VehicleController::class, 'create'])->name('reports.vehicle-monitoring.create');
+    Route::post('/reports/vehicle-monitoring', [VehicleController::class, 'store'])->name('reports.vehicle-monitoring.store');
+    Route::get('/reports/vehicle-monitoring/{vehicle}', [VehicleController::class, 'show'])->name('reports.vehicle-monitoring.show');
+    Route::get('/reports/vehicle-monitoring/{vehicle}/edit', [VehicleController::class, 'edit'])->name('reports.vehicle-monitoring.edit');
+    Route::put('/reports/vehicle-monitoring/{vehicle}', [VehicleController::class, 'update'])->name('reports.vehicle-monitoring.update');
+    Route::patch('/reports/vehicle-monitoring/{vehicle}', [VehicleController::class, 'update']);
+    Route::delete('/reports/vehicle-monitoring/{vehicle}', [VehicleController::class, 'destroy'])->name('reports.vehicle-monitoring.destroy');
 
     // Reports Resource Routes
     Route::resource('reports', ReportController::class);

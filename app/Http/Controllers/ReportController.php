@@ -41,6 +41,14 @@ class ReportController extends Controller
     }
 
     /**
+     * Display vehicle monitoring information.
+     */
+    public function vehicleMonitoring()
+    {
+        return view('reports.vehicle-monitoring');
+    }
+
+    /**
      * Show the form for creating a new incident report.
      */
     public function create()

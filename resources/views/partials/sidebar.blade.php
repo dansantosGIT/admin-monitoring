@@ -15,24 +15,32 @@
 
     <nav class="nav" aria-label="Primary navigation">
         <a href="{{ url('/dashboard') }}" class="{{ request()->is('dashboard') ? 'active' : '' }}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 13h8V3H3v10zm10 8h8V11h-8v10zM13 3v6h8V3h-8zM3 21h8v-6H3v6z"/></svg>
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 13h8V3H3v10zm10 8h8V11h-8v10zM13 3v6h8V3h-8zM3 21h8v-6H3v6z"/></svg>
             <span class="sidebar-label">Dashboard</span>
         </a>
-        <a href="{{ route('reports.index') }}" class="{{ request()->is('reports*') ? 'active' : '' }}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
-            <span class="sidebar-label">Reports</span>
-        </a>
+        @php($reportsSectionOpen = request()->is('reports*'))
+        <div class="nav-group {{ $reportsSectionOpen ? 'is-open' : '' }}" data-reports-nav>
+            <button type="button" class="nav-group-toggle {{ $reportsSectionOpen ? 'active' : '' }}" aria-expanded="{{ $reportsSectionOpen ? 'true' : 'false' }}" aria-controls="reportsSubmenu" data-reports-toggle>
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+                <span class="sidebar-label">Reports</span>
+                <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <div class="nav-submenu" id="reportsSubmenu">
+                <a href="{{ route('reports.index') }}" class="{{ request()->routeIs('reports.index') || request()->routeIs('reports.create') || request()->routeIs('reports.show') || request()->routeIs('reports.edit') ? 'active' : '' }}">Overview</a>
+                <a href="{{ route('reports.vehicle-monitoring') }}" class="{{ request()->routeIs('reports.vehicle-monitoring') ? 'active' : '' }}">Vehicle Monitoring</a>
+            </div>
+        </div>
         <a href="{{ route('employees.index') ?? '#' }}" class="{{ request()->is('employees*') ? 'active' : '' }}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             <span class="sidebar-label">Employees</span>
         </a>
         <a href="{{ route('attendance.index') ?? '#' }}" class="{{ request()->is('attendance*') ? 'active' : '' }}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
             <span class="sidebar-label">Attendance</span>
         </a>
         @if(auth()->check() && (auth()->user()->role ?? '') === 'super-admin')
             <a href="{{ route('accounts.index') }}" class="{{ request()->is('accounts*') ? 'active' : '' }}">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 <span class="sidebar-label">Accounts</span>
             </a>
         @endif
@@ -66,8 +74,15 @@
 @push('scripts')
 <script>
     (function () {
+        const reportsNav = document.querySelector('[data-reports-nav]');
+        const reportsToggle = document.querySelector('[data-reports-toggle]');
         const button = document.getElementById('sidebarToggle');
         const body = document.body;
+
+        reportsToggle?.addEventListener('click', () => {
+            const isOpen = reportsNav.classList.toggle('is-open');
+            reportsToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
 
         if (!button) {
             return;
