@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -43,6 +44,25 @@ class Employee extends Model
             $this->last_name,
             $this->suffix,
         ])));
+    }
+
+    public function scopeBirthdaysToday($query, ?CarbonInterface $date = null)
+    {
+        $date ??= today();
+        $month = $date->month;
+        $day = $date->day;
+
+        return $query->where('status', 'Active')->where(function ($birthdayQuery) use ($month, $day, $date) {
+            $birthdayQuery->where(function ($query) use ($month, $day) {
+                $query->whereMonth('birthdate', $month)->whereDay('birthdate', $day);
+            });
+
+            if ($month === 2 && $day === 28 && ! $date->isLeapYear()) {
+                $birthdayQuery->orWhere(function ($query) {
+                    $query->whereMonth('birthdate', 2)->whereDay('birthdate', 29);
+                });
+            }
+        });
     }
 
     public function attendanceSchedules(): HasMany

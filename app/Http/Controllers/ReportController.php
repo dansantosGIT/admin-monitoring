@@ -202,8 +202,13 @@ class ReportController extends Controller
                 ->get(),
             'recent_reports' => Report::with('employee')->latest('date_of_incident')->take(10)->get(),
         ];
+        $birthdayCelebrants = Employee::query()
+            ->birthdaysToday()
+            ->orderBy('last_name')
+            ->orderBy('first_name')
+            ->get();
 
-        return view('dashboard', compact('stats', 'employees'));
+        return view('dashboard', compact('stats', 'employees', 'birthdayCelebrants'));
     }
 
     /**

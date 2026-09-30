@@ -186,6 +186,8 @@
             </div>
             {{-- END MINI CALENDAR --}}
 
+            <x-dashboard-birthday-celebrants :celebrants="$birthdayCelebrants" :date="today()" />
+
             {{-- RECENT VIOLATIONS --}}
             <div class="card">
                 <div class="card__header">
