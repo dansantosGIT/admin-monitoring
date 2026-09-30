@@ -574,6 +574,7 @@
                         <td>{{ optional($emp->date_hired)->format('F j, Y') }}</td>                        <td>
                             <div class="action-group">
                                 <a href="{{ route('employees.show', $emp) }}" class="btn secondary">View</a>
+                                <a href="{{ route('attendance.index', ['employee_id' => $emp->id, 'month' => now()->format('Y-m')]) }}" class="btn secondary">View DTR</a>
                                 <a href="{{ route('employees.edit', $emp) }}" class="btn">Edit</a>
                                 <form method="POST" action="{{ route('employees.destroy', $emp) }}" style="display:inline-block" onsubmit="return confirm('Delete this employee?');">
                                     @csrf

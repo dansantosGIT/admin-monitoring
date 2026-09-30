@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Employee extends Model
 {
@@ -42,5 +43,30 @@ class Employee extends Model
             $this->last_name,
             $this->suffix,
         ])));
+    }
+
+    public function attendanceSchedules(): HasMany
+    {
+        return $this->hasMany(AttendanceSchedule::class);
+    }
+
+    public function dtrPeriods(): HasMany
+    {
+        return $this->hasMany(DtrPeriod::class);
+    }
+
+    public function dtrEntries(): HasMany
+    {
+        return $this->hasMany(DtrEntry::class);
+    }
+
+    public function leaveRecords(): HasMany
+    {
+        return $this->hasMany(LeaveRecord::class);
+    }
+
+    public function leaveCredits(): HasMany
+    {
+        return $this->hasMany(LeaveCredit::class);
     }
 }

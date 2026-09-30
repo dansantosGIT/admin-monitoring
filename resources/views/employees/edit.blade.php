@@ -39,8 +39,8 @@
             linear-gradient(180deg, #f5f7fb 0%, #eef3f9 100%);
     }
     .content {
-        padding: 24px 28px 36px;
-        max-width: 1440px;
+        padding: 18px 18px 30px;
+        max-width: none;
         width: 100%;
         margin: 0 auto;
     }

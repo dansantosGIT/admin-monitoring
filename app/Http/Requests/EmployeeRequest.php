@@ -47,6 +47,7 @@ class EmployeeRequest extends FormRequest
             'place_of_birth' => ['nullable', 'string', 'max:200'],
             'mobile' => ['nullable', 'regex:/^09\d{9}$/'],
             'email' => ['nullable', 'email', 'max:200'],
+            'employee_number' => ['nullable', 'string', 'max:50'],
             'position' => ['required', 'string', 'max:200'],
             'department' => ['nullable', 'string', 'max:200'],
             'section' => ['nullable', 'string', 'max:200'],

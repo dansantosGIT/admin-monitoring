@@ -53,7 +53,10 @@ Route::middleware('auth')->group(function () {
 
     // Resource routes for sidebar pages
     Route::resource('employees', EmployeeController::class);
-    Route::resource('attendance', AttendanceController::class);
+    Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+    Route::post('/attendance/entries', [AttendanceController::class, 'storeEntry'])->name('attendance.entries.store');
+    Route::post('/attendance/schedules', [AttendanceController::class, 'storeSchedule'])->name('attendance.schedules.store');
+    Route::post('/attendance/leaves', [AttendanceController::class, 'storeLeave'])->name('attendance.leaves.store');
 
     // PSGC proxy for Philippine address dropdowns
     Route::get('/location/psgc/{path?}', function (Request $request, ?string $path = null) {

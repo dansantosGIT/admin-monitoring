@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\EmployeeRequest;
+use App\Models\DtrEntry;
 use App\Models\Employee;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Carbon;
 
 class EmployeeController extends Controller
 {
@@ -33,6 +36,7 @@ class EmployeeController extends Controller
             'place_of_birth' => 'nullable|string|max:200',
             'mobile' => 'nullable|string|max:50',
             'email' => 'nullable|email|max:200',
+            'employee_number' => 'nullable|string|max:50',
             'position' => 'nullable|string|max:200',
             'department' => 'nullable|string|max:200',
             'section' => 'nullable|string|max:200',
@@ -97,9 +101,67 @@ class EmployeeController extends Controller
         return redirect()->route('employees.index')->with('success', 'Employee created successfully.');
     }
 
-    public function show(Employee $employee)
+    public function show(Request $request, Employee $employee)
     {
-        return view('employees.show', compact('employee'));
+        $month = $request->input('month', now()->format('Y-m'));
+
+        try {
+            $calendarMonth = Carbon::createFromFormat('Y-m', $month)->startOfMonth();
+        } catch (\Throwable) {
+            $calendarMonth = now()->startOfMonth();
+            $month = $calendarMonth->format('Y-m');
+        }
+
+        $calendarEnd = $calendarMonth->copy()->endOfMonth();
+        $schedule = $employee->attendanceSchedules()
+            ->where('effective_from', '<=', $calendarEnd->toDateString())
+            ->where(function ($query) use ($calendarMonth) {
+                $query->whereNull('effective_to')->orWhere('effective_to', '>=', $calendarMonth->toDateString());
+            })
+            ->orderByDesc('effective_from')
+            ->first();
+        $workingDays = $schedule?->working_days ?: ['mon', 'tue', 'wed', 'thu', 'fri'];
+
+        $entries = DtrEntry::where('employee_id', $employee->id)
+            ->whereBetween('work_date', [$calendarMonth->toDateString(), $calendarEnd->toDateString()])
+            ->get()
+            ->keyBy(fn (DtrEntry $entry) => Carbon::parse((string) $entry->work_date)->format('Y-m-d'));
+
+        $leaveRecords = $employee->leaveRecords()
+            ->where('status', 'approved')
+            ->where('start_date', '<=', $calendarEnd->toDateString())
+            ->where('end_date', '>=', $calendarMonth->toDateString())
+            ->get();
+
+        $calendarDays = collect(range(1, $calendarMonth->daysInMonth))->map(function (int $day) use ($calendarMonth, $entries, $leaveRecords, $workingDays) {
+            $date = $calendarMonth->copy()->day($day);
+            $dateKey = $date->format('Y-m-d');
+            $entry = $entries->get($dateKey);
+            $leave = $leaveRecords->first(fn ($record) => $date->between($record->start_date, $record->end_date));
+            $weekday = strtolower($date->format('D'));
+
+            $status = $entry?->status;
+            if (! $status && $leave) {
+                $status = 'leave';
+            } elseif (! $status && ! in_array($weekday, $workingDays, true)) {
+                $status = 'rest_day';
+            } elseif (! $status) {
+                $status = 'not_recorded';
+            }
+
+            return (object) [
+                'date' => $date,
+                'entry' => $entry,
+                'leave' => $leave,
+                'status' => $status,
+            ];
+        });
+
+        $calendarCounts = $calendarDays->countBy('status');
+
+        return view('employees.show', compact(
+            'employee', 'month', 'calendarMonth', 'calendarDays', 'calendarCounts'
+        ))->with('canManage', $this->canManageAttendance());
     }
 
     public function edit(Employee $employee)
@@ -121,6 +183,7 @@ class EmployeeController extends Controller
             'place_of_birth' => 'nullable|string|max:200',
             'mobile' => 'nullable|string|max:50',
             'email' => 'nullable|email|max:200',
+            'employee_number' => 'nullable|string|max:50',
             'position' => 'nullable|string|max:200',
             'department' => 'nullable|string|max:200',
             'section' => 'nullable|string|max:200',
@@ -191,6 +254,11 @@ class EmployeeController extends Controller
     {
         $employee->delete();
         return redirect()->route('employees.index')->with('success', 'Employee deleted.');
+    }
+
+    private function canManageAttendance(): bool
+    {
+        return auth()->check() && in_array(auth()->user()->role ?? '', ['admin', 'super-admin'], true);
     }
 }
 
