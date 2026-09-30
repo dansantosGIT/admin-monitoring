@@ -15,7 +15,7 @@ class Employee extends Model
         'sex', 'civil_status', 'birthdate', 'place_of_birth', 'nationality', 'religion',
         'present_address', 'permanent_address', 'mobile', 'phone', 'email',
         'sss', 'gsis', 'philhealth', 'pagibig', 'tin',
-        'position', 'department', 'section', 'employment_type', 'date_hired', 'monthly_salary', 'salary_grade', 'supervisor_id',
+        'position', 'department', 'section', 'employment_type', 'shift_type', 'shift_start', 'shift_end', 'date_hired', 'monthly_salary', 'salary_grade', 'supervisor_id',
         'spouse', 'parents', 'children', 'education', 'eligibilities', 'work_experience', 'trainings',
         'photo_path', 'remarks', 'status'
     ];

@@ -664,6 +664,28 @@
                                 </div>
                             </div>
                             <div class="field-row col-3">
+                                <div class="field @error('shift_type') has-error @enderror">
+                                    <label class="field-label">Shift</label>
+                                    <select class="field-select" name="shift_type">
+                                        <option value="">Select shift</option>
+                                        <option value="morning" {{ old('shift_type') === 'morning' ? 'selected' : '' }}>Morning Shift</option>
+                                        <option value="mid" {{ old('shift_type') === 'mid' ? 'selected' : '' }}>Mid Shift</option>
+                                        <option value="night" {{ old('shift_type') === 'night' ? 'selected' : '' }}>Night Shift</option>
+                                    </select>
+                                    <div class="field-error">@error('shift_type'){{ $message }}@enderror</div>
+                                </div>
+                                <div class="field @error('shift_start') has-error @enderror">
+                                    <label class="field-label">Shift Start</label>
+                                    <input class="field-input" type="time" name="shift_start" value="{{ old('shift_start') }}" step="60">
+                                    <div class="field-error">@error('shift_start'){{ $message }}@enderror</div>
+                                </div>
+                                <div class="field @error('shift_end') has-error @enderror">
+                                    <label class="field-label">Shift End</label>
+                                    <input class="field-input" type="time" name="shift_end" value="{{ old('shift_end') }}" step="60">
+                                    <div class="field-error">@error('shift_end'){{ $message }}@enderror</div>
+                                </div>
+                            </div>
+                            <div class="field-row col-3">
                                 <div class="field">
                                     <label class="field-label">Salary Grade</label>
                                     <input class="field-input" name="salary_grade" value="{{ old('salary_grade') }}" placeholder="e.g. SG-11">
