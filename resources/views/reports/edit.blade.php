@@ -390,7 +390,7 @@
                                     Locked after saving
                                 </span>
                             </div>
-                            <input class="input" id="reported_by" type="text" value="{{ optional($report->reportedBy)->email ?? auth()->user()->email ?? auth()->user()->name ?? 'Current user' }}" disabled title="Locked after saving">
+                            <div class="input identity-display" id="reported_by" role="textbox" aria-readonly="true" title="Locked after saving"><x-masked-email :email="optional($report->reportedBy)->email ?? auth()->user()->email ?? auth()->user()->name ?? 'Current user'" /></div>
                         </div>
                     </div>
                 </section>

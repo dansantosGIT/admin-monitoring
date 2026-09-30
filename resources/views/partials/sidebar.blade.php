@@ -1,17 +1,18 @@
 <aside class="app-sidebar" aria-label="Main sidebar">
-    <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar" aria-expanded="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 6h10M4 12h16M10 18h10"/></svg>
-    </button>
-
-    <a href="{{ route('dashboard') }}" class="brand">
-        <span class="brand-mark">
-            <img src="{{ asset('images/CDRRMD-Logo.png') }}" alt="CDRRMD" style="width:40px;height:40px;object-fit:cover;border-radius:50%;border:0;box-shadow:none;">
-        </span>
-        <span class="brand-copy sidebar-brand-copy">
-            <strong>{{ config('app.name', 'CDRRMD') }}</strong>
-            <span>Personnel monitoring</span>
-        </span>
-    </a>
+    <div class="sidebar-header" id="sidebarHeader" role="button" tabindex="-1" aria-label="Sidebar header">
+        <a href="{{ route('dashboard') }}" class="brand">
+            <span class="brand-mark">
+                <img src="{{ asset('images/CDRRMD-Logo.png') }}" alt="CDRRMD" style="width:40px;height:40px;object-fit:cover;border-radius:50%;border:0;box-shadow:none;">
+            </span>
+            <span class="brand-copy sidebar-brand-copy">
+                <strong>{{ config('app.name', 'CDRRMD') }}</strong>
+                <span>Personnel monitoring</span>
+            </span>
+        </a>
+        <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Collapse sidebar" aria-expanded="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 6h10M4 12h16M10 18h10"/></svg>
+        </button>
+    </div>
 
     <nav class="nav" aria-label="Primary navigation">
         <a href="{{ url('/dashboard') }}" class="{{ request()->is('dashboard') ? 'active' : '' }}">
@@ -27,7 +28,7 @@
             </button>
             <div class="nav-submenu" id="reportsSubmenu">
                 <a href="{{ route('reports.index') }}" class="{{ request()->routeIs('reports.index') || request()->routeIs('reports.create') || request()->routeIs('reports.show') || request()->routeIs('reports.edit') ? 'active' : '' }}">Overview</a>
-                <a href="{{ route('reports.vehicle-monitoring') }}" class="{{ request()->routeIs('reports.vehicle-monitoring') ? 'active' : '' }}">Vehicle Monitoring</a>
+                <a href="{{ route('reports.vehicle-monitoring') }}" class="{{ request()->routeIs('reports.vehicle-monitoring*') ? 'active' : '' }}">Vehicle Monitoring</a>
             </div>
         </div>
         <a href="{{ route('employees.index') ?? '#' }}" class="{{ request()->is('employees*') ? 'active' : '' }}">
@@ -46,25 +47,26 @@
         @endif
     </nav>
 
-    <div style="margin-top:auto">
-        <div class="sidebar-user" style="display:flex;align-items:center;gap:10px">
-            <img src="{{ asset('images/CDRRMD-Logo.png') }}" alt="user" style="width:36px;height:36px;border-radius:50%">
+    <div class="sidebar-footer">
+        <div class="sidebar-user" title="Signed-in account">
+            <img class="sidebar-user-avatar" src="{{ asset('images/CDRRMD-Logo.png') }}" alt="{{ auth()->user()->name ?? 'User' }}">
             <div class="sidebar-user-copy">
                 @if(auth()->check())
-                    <div style="font-weight:700">{{ auth()->user()->name }}</div>
-                    <div style="font-size:12px;color:var(--muted)">{{ auth()->user()->position ?? auth()->user()->role ?? 'Member' }}</div>
+                    <div class="sidebar-user-email"><x-masked-email :email="auth()->user()->email" /></div>
+                    <div style="font-size:12px;color:var(--muted)">{{ auth()->user()->role ?? 'Member' }}</div>
                 @else
-                    <div style="font-weight:700">Nawar Anwar</div>
-                    <div style="font-size:12px;color:var(--muted)">LDRRM Officer II</div>
+                    <div class="sidebar-user-email"><x-masked-email email="superadmin@sanjuan.gov.ph" /></div>
+                    <div style="font-size:12px;color:var(--muted)">super-admin</div>
                 @endif
             </div>
         </div>
 
         @auth
-            <form method="POST" action="{{ route('logout') }}" style="margin-top:12px">
+            <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" style="display:block;width:100%;text-align:left;padding:10px 12px;border:none;background:none;color:var(--muted);font-weight:600;cursor:pointer">
-                    Logout
+                <button type="submit" class="sidebar-logout" aria-label="Log out">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>
+                    <span class="sidebar-label">Logout</span>
                 </button>
             </form>
         @endauth
@@ -77,6 +79,8 @@
         const reportsNav = document.querySelector('[data-reports-nav]');
         const reportsToggle = document.querySelector('[data-reports-toggle]');
         const button = document.getElementById('sidebarToggle');
+        const header = document.getElementById('sidebarHeader');
+        const sidebar = document.querySelector('.app-sidebar');
         const body = document.body;
 
         reportsToggle?.addEventListener('click', () => {
@@ -91,6 +95,9 @@
         const sync = () => {
             const collapsed = body.classList.contains('sidebar-collapsed');
             button.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+            button.setAttribute('aria-label', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
+            header.setAttribute('aria-label', collapsed ? 'Expand sidebar' : 'Sidebar header');
+            header.setAttribute('tabindex', collapsed ? '0' : '-1');
             try {
                 localStorage.setItem('sidebar-collapsed', collapsed ? '1' : '0');
             } catch (error) {
@@ -99,8 +106,44 @@
         };
 
         button.addEventListener('click', () => {
+            const willExpand = body.classList.contains('sidebar-collapsed');
+            body.classList.toggle('sidebar-is-expanding', willExpand);
             body.classList.toggle('sidebar-collapsed');
             sync();
+            window.setTimeout(() => body.classList.remove('sidebar-is-expanding'), 320);
+        });
+
+        header.addEventListener('click', (event) => {
+            if (!body.classList.contains('sidebar-collapsed') || event.target.closest('#sidebarToggle')) {
+                return;
+            }
+            if (event.target.closest('.brand')) {
+                event.preventDefault();
+            }
+            body.classList.remove('sidebar-collapsed');
+            body.classList.add('sidebar-is-expanding');
+            sync();
+            window.setTimeout(() => body.classList.remove('sidebar-is-expanding'), 320);
+        });
+
+        header.addEventListener('keydown', (event) => {
+            if (body.classList.contains('sidebar-collapsed') && (event.key === 'Enter' || event.key === ' ')) {
+                event.preventDefault();
+                body.classList.remove('sidebar-collapsed');
+                body.classList.add('sidebar-is-expanding');
+                sync();
+                window.setTimeout(() => body.classList.remove('sidebar-is-expanding'), 320);
+            }
+        });
+
+        sidebar.addEventListener('click', (event) => {
+            if (!body.classList.contains('sidebar-collapsed') || event.target.closest('a, button, input, select, form')) {
+                return;
+            }
+            body.classList.remove('sidebar-collapsed');
+            body.classList.add('sidebar-is-expanding');
+            sync();
+            window.setTimeout(() => body.classList.remove('sidebar-is-expanding'), 320);
         });
 
         sync();

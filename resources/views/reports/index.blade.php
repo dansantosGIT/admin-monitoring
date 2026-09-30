@@ -544,6 +544,7 @@
                         <th>ID</th>
                         <th>Date</th>
                         <th>Employee</th>
+                        <th>Reported By</th>
                         <th>Type</th>
                         <th>Item</th>
                         <th>Severity</th>
@@ -562,6 +563,12 @@
                                     <span class="employee-sub">{{ $report->department ?: 'No department' }}</span>
                                 </div>
                             </td>
+                            <td>
+                                <div class="employee-cell">
+                                    <span class="employee-name">{{ $report->reported_by_name ?: 'Not recorded' }}</span>
+                                    <span class="employee-sub"><x-masked-email :email="$report->reportedBy?->email" /></span>
+                                </div>
+                            </td>
                             <td>{{ $typeLabels[$report->incident_type] ?? ucwords(str_replace('_', ' ', $report->incident_type)) }}</td>
                             <td>{{ $report->item_name }}</td>
                             <td><span class="badge {{ $severityClasses[$report->severity] ?? 'badge--minor' }}">{{ ucfirst($report->severity) }}</span></td>
@@ -576,7 +583,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8">
+                            <td colspan="9">
                                 <div class="empty-state">
                                     No reports found. Create the first report to get started.
                                 </div>

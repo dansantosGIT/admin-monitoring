@@ -24,6 +24,9 @@ class IncidentReportRequest extends FormRequest
     {
         return [
             'required' => 'This field is required.',
+            'reported_by_name.min' => 'Staff Name must be at least 2 characters.',
+            'reported_by_name.max' => 'Staff Name must not exceed 100 characters.',
+            'reported_by_name.regex' => 'Staff Name must contain letters and may include spaces, periods, apostrophes, or hyphens.',
             'employee_id.exists' => 'Selected employee is invalid.',
             'department.in' => 'Please select a valid department.',
             'team.required_if' => 'This field is required.',
@@ -40,6 +43,7 @@ class IncidentReportRequest extends FormRequest
     private function storeRules(): array
     {
         return [
+            'reported_by_name' => ['required', 'string', 'min:2', 'max:100', "regex:/^(?=.*\\pL)[\\pL\\s.'-]+$/u"],
             'employee_id' => ['required', 'integer', 'exists:employees,id'],
             'department' => ['required', 'in:CEDOC,LOGISTICS,PLANNING,ADMIN & TRAINING,OPERATIONS,VOLUNTEER,OTHERS'],
             'team' => ['nullable', 'required_if:department,OPERATIONS', 'in:Team Alpha,Team Bravo,Team Charlie,Team Delta'],
@@ -59,6 +63,13 @@ class IncidentReportRequest extends FormRequest
             'attachments' => ['nullable', 'array'],
             'attachments.*' => ['file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        if ($this->isMethod('post')) {
+            $this->merge(['reported_by_name' => trim((string) $this->input('reported_by_name'))]);
+        }
     }
 
     private function updateRules(): array

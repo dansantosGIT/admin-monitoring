@@ -62,11 +62,14 @@ class ReportController extends Controller
     public function store(IncidentReportRequest $request)
     {
         $validated = $request->validated();
+        $incidentCode = $this->generateIncidentCode();
 
-        $report = DB::transaction(function () use ($validated, $request) {
+        $report = DB::transaction(function () use ($validated, $request, $incidentCode) {
             $report = Report::create([
-                'incident_code' => $this->generateIncidentCode(),
+            'incident_code' => $incidentCode,
+            'report_number' => $incidentCode,
                 'employee_id' => $validated['employee_id'],
+            'submitted_by' => auth()->id(),
                 'department' => $validated['department'],
                 'team' => $validated['team'] ?? null,
                 'department_other' => $validated['department_other'] ?? null,
@@ -77,11 +80,13 @@ class ReportController extends Controller
                 'description' => $validated['description'],
                 'location' => $validated['location'],
                 'date_of_incident' => $validated['date_of_incident'],
+                'incident_date' => $validated['date_of_incident'],
                 'severity' => $validated['severity'],
                 'estimated_cost' => $validated['estimated_cost'] ?? null,
                 'status' => $validated['status'],
                 'action_taken' => $validated['action_taken'] ?? null,
                 'reported_by' => auth()->id(),
+                'reported_by_name' => $validated['reported_by_name'],
                 'remarks' => $validated['remarks'] ?? null,
             ]);
 

@@ -8,6 +8,13 @@ use Illuminate\Support\Facades\Auth;
 
 class AccountController extends Controller
 {
+    public function revealEmail(): \Illuminate\Http\JsonResponse
+    {
+        abort_unless(Auth::check(), 403);
+
+        return response()->json(['email' => Auth::user()->email]);
+    }
+
     // List account requests (pending) and other statuses
     public function index(Request $request)
     {

@@ -22,11 +22,17 @@ Route::middleware('auth')->group(function () {
 
     // System Health Check
     Route::get('/health', [ReportController::class, 'systemHealth'])->name('health');
+    Route::get('/account/email/reveal', [AccountController::class, 'revealEmail'])->name('account.email.reveal');
 
     // Vehicle Monitoring must be declared before the resource wildcard route.
     Route::get('/reports/vehicle-monitoring', [VehicleController::class, 'index'])->name('reports.vehicle-monitoring');
+    Route::get('/reports/vehicle-monitoring/export', [VehicleController::class, 'exportCsv'])->name('reports.vehicle-monitoring.export');
     Route::get('/reports/vehicle-monitoring/create', [VehicleController::class, 'create'])->name('reports.vehicle-monitoring.create');
+    Route::get('/reports/vehicle-monitoring/check-plate', [VehicleController::class, 'checkPlate'])->name('reports.vehicle-monitoring.check-plate');
     Route::post('/reports/vehicle-monitoring', [VehicleController::class, 'store'])->name('reports.vehicle-monitoring.store');
+    Route::patch('/reports/vehicle-monitoring/{vehicle}/status', [VehicleController::class, 'quickStatus'])->name('reports.vehicle-monitoring.status');
+    Route::post('/reports/vehicle-monitoring/{vehicle}/duplicate', [VehicleController::class, 'duplicate'])->name('reports.vehicle-monitoring.duplicate');
+    Route::post('/reports/vehicle-monitoring/bulk-status', [VehicleController::class, 'bulkStatus'])->name('reports.vehicle-monitoring.bulk-status');
     Route::get('/reports/vehicle-monitoring/{vehicle}', [VehicleController::class, 'show'])->name('reports.vehicle-monitoring.show');
     Route::get('/reports/vehicle-monitoring/{vehicle}/edit', [VehicleController::class, 'edit'])->name('reports.vehicle-monitoring.edit');
     Route::put('/reports/vehicle-monitoring/{vehicle}', [VehicleController::class, 'update'])->name('reports.vehicle-monitoring.update');

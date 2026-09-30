@@ -19,7 +19,9 @@ class Report extends Model
      */
     protected $fillable = [
         'incident_code',
+        'report_number',
         'employee_id',
+        'submitted_by',
         'department',
         'team',
         'department_other',
@@ -31,11 +33,13 @@ class Report extends Model
         'description',
         'location',
         'date_of_incident',
+        'incident_date',
         'severity',
         'estimated_cost',
         'status',
         'action_taken',
         'reported_by',
+        'reported_by_name',
         'remarks',
         'attachment_path',
     ];

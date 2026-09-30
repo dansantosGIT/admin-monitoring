@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Vehicle extends Model
 {
@@ -15,13 +16,16 @@ class Vehicle extends Model
     }
 
     protected $fillable = [
-        'call_sign', 'vehicle_type', 'vehicle_model', 'brand', 'plate_number', 'year', 'team',
+        'call_sign', 'vehicle_type', 'vehicle_type_other', 'vehicle_model', 'brand', 'plate_number', 'year', 'team',
         'drive_link', 'remarks', 'driver_id', 'status', 'last_known_location', 'last_updated_at',
+        'next_due_date',
+        'photo_path',
     ];
 
     protected $casts = [
         'year' => 'integer',
         'last_updated_at' => 'datetime',
+        'next_due_date' => 'date',
     ];
 
     public function driver()
@@ -32,6 +36,11 @@ class Vehicle extends Model
     public function tasks()
     {
         return $this->hasMany(VehicleTask::class)->orderBy('sort_order')->orderBy('id');
+    }
+
+    public function activityLogs()
+    {
+        return $this->hasMany(VehicleActivityLog::class)->latest();
     }
 
     public function scopeSearch($query, ?string $term)
@@ -81,6 +90,11 @@ class Vehicle extends Model
             'idle' => 'idle',
             default => 'active',
         };
+    }
+
+    public function getPhotoUrlAttribute(): ?string
+    {
+        return $this->photo_path ? Storage::url($this->photo_path) : null;
     }
 
 }

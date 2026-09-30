@@ -198,7 +198,7 @@
             <div class="item"><span class="label">Severity</span><div class="value"><span class="badge {{ $severityClasses[$report->severity] ?? 'badge--minor' }}">{{ ucfirst($report->severity) }}</span></div></div>
             <div class="item"><span class="label">Status</span><div class="value"><span class="badge {{ $statusClasses[$report->status] ?? 'badge--pending' }}">{{ ucwords(str_replace('_', ' ', $report->status)) }}</span></div></div>
             <div class="item"><span class="label">Estimated Cost</span><div class="value">{{ $report->estimated_cost !== null ? number_format((float) $report->estimated_cost, 2) : 'N/A' }}</div></div>
-            <div class="item"><span class="label">Reported By</span><div class="value">{{ optional($report->reportedBy)->name ?? 'System' }}</div></div>
+            <div class="item"><span class="label">Reported By</span><div class="value">{{ $report->reported_by_name ?: 'Not recorded' }} <span class="reporter-account">(<x-masked-email :email="$report->reportedBy?->email" />)</span></div></div>
         </div>
     </section>
 

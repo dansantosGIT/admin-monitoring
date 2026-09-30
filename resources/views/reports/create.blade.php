@@ -107,6 +107,26 @@
         color: #607086;
     }
 
+    .identity-display {
+        display: flex;
+        align-items: center;
+    }
+
+    .reporter-identity-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .reporter-identity-grid > .field {
+        align-content: start;
+    }
+
+    .reporter-identity-grid > .field > .field-label-row {
+        min-height: 32px;
+        align-items: center;
+    }
+
     .field-error {
         min-height: 18px;
         font-size: 12px;
@@ -238,6 +258,7 @@
     @media (max-width: 860px) {
         .grid-2 { grid-template-columns: 1fr; }
         .conditional-grid { grid-template-columns: 1fr; }
+        .reporter-identity-grid { grid-template-columns: 1fr; }
         .actions { justify-content: stretch; }
         .actions .btn { width: 100%; }
         .field-label-row { flex-direction: column; }
@@ -371,15 +392,22 @@
                                 <div class="field-error" id="department_other-error">@error('department_other'){{ $message }}@enderror</div>
                             </div>
                         </div>
-                        <div class="field">
-                            <div class="field-label-row">
-                                <label for="reported_by">Reported By</label>
-                                <span class="lock-badge" title="Auto-filled from the logged-in admin account">
-                                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4.5 7V5.5a3.5 3.5 0 1 1 7 0V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><rect x="3" y="7" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 9.25v2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-                                    Locked after saving
-                                </span>
+                        <div class="field field-span-2 reporter-identity-grid">
+                            <div class="field">
+                                <div class="field-label-row">
+                                    <label for="reported_by">Account Email</label>
+                                    <span class="lock-badge" title="Auto-filled from the logged-in admin account">
+                                        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4.5 7V5.5a3.5 3.5 0 1 1 7 0V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><rect x="3" y="7" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 9.25v2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                                        Locked after saving
+                                    </span>
+                                </div>
+                                <div class="input identity-display" id="reported_by" role="textbox" aria-readonly="true"><x-masked-email :email="auth()->user()->email ?? auth()->user()->name ?? 'Current user'" /></div>
                             </div>
-                            <input class="input" id="reported_by" type="text" value="{{ auth()->user()->email ?? auth()->user()->name ?? 'Current user' }}" readonly aria-readonly="true">
+                            <div class="field">
+                                <div class="field-label-row"><label for="reported_by_name">Staff Name <span class="ui-required">*</span></label></div>
+                                <input class="input" id="reported_by_name" name="reported_by_name" type="text" value="{{ old('reported_by_name') }}" placeholder="Enter your name" minlength="2" maxlength="100" required aria-required="true" aria-describedby="reported_by_name-error">
+                                <div class="field-error" id="reported_by_name-error">@error('reported_by_name'){{ $message }}@enderror</div>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -474,7 +502,7 @@
                 const form = document.querySelector('[data-incident-form]');
                 const attachmentInput = document.getElementById('attachments');
                 const preview = document.getElementById('attachmentPreview');
-                const requiredFields = ['date_of_incident', 'incident_type', 'severity', 'status', 'employee_id', 'department', 'location', 'item_name', 'description'];
+                const requiredFields = ['date_of_incident', 'incident_type', 'severity', 'status', 'employee_id', 'department', 'location', 'item_name', 'description', 'reported_by_name'];
                 const capitalizedFields = ['location', 'item_name', 'property_number', 'serial_number', 'department_other', 'description', 'action_taken', 'remarks'];
                 const department = document.getElementById('department');
                 const team = document.getElementById('team');
